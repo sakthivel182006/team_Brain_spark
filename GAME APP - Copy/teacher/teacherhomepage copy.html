@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Home - MCQ Types</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    button { margin-top: 15px; width: 100%; padding: 10px; background: #3498db; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #2980b9; }
+    table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 30px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background: #3498db; color: #fff; }
+    .edit-btn { padding: 5px 10px; background: #2ecc71; color: #fff; border: none; border-radius: 3px; cursor: pointer; }
+    .edit-btn:hover { background: #27ae60; }
+    #updateForm { display: none; background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+</style>
+</head>
+<body>
+
+<h1>Teacher - Manage MCQ Types & Questions</h1>
+<button onclick="window.location.href='mcqquestioncontrol.html'">Go to MCQ Questions</button>
+
+<button onclick="window.location.href='studentscoresmark.html'">Go to MCQ marks</button>
+
+<!-- Teacher Info -->
+<div class="container" id="teacherInfo">
+    <h2>Logged-in Teacher Details</h2>
+    <p><strong>Loggein Teacher Name:</strong> <span id="teacherName"></span></p>
+    <p><strong>Teacher Email:</strong> <span id="teacherEmail"></span></p>
+    <p><strong>Teacher Phone:</strong> <span id="teacherPhone"></span></p>
+    <p><strong>Teacher Department:</strong> <span id="teacherDepartment"></span></p>
+    <p><strong>College Name:</strong> <span id="teacherCollegeName"></span></p>
+    <p><strong>College Official Email:</strong> <span id="teacherCollegeEmail"></span></p>
+    
+</div>
+
+<!-- Create MCQ Type Form -->
+<div class="container">
+    <h2>Create MCQ Type</h2>
+    <form id="mcqTypeForm">
+        <label for="name">MCQ Type Name</label>
+        <input type="text" id="name" required>
+
+        <label for="description">Description</label>
+        <textarea id="description" placeholder="Optional"></textarea>
+
+        <label for="imageUrl">Image URL</label>
+        <input type="text" id="imageUrl" placeholder="Optional">
+
+        <label for="entryFee">Entry Fee</label>
+        <input type="number" id="entryFee" value="0" min="0">
+
+        <label for="startTimeBeforeStart">Start Time</label>
+        <input type="datetime-local" id="startTimeBeforeStart" required>
+
+        <label for="dueTimeBeforeStart">Due Time</label>
+        <input type="datetime-local" id="dueTimeBeforeStart" required>
+
+        <button type="submit">Create MCQ Type</button>
+    </form>
+</div>
+
+<!-- Update MCQ Type Form -->
+<div class="container" id="updateForm">
+    <h2>Update MCQ Type</h2>
+    <form id="mcqUpdateForm">
+        <input type="hidden" id="updateMcqId">
+        <label for="updateName">MCQ Type Name</label>
+        <input type="text" id="updateName" required>
+
+        <label for="updateDescription">Description</label>
+        <textarea id="updateDescription"></textarea>
+
+        <label for="updateImageUrl">Image URL</label>
+        <input type="text" id="updateImageUrl">
+
+        <label for="updateEntryFee">Entry Fee</label>
+        <input type="number" id="updateEntryFee" min="0">
+
+        <label for="updateStartTime">Start Time</label>
+        <input type="datetime-local" id="updateStartTime" required>
+
+        <label for="updateDueTime">Due Time</label>
+        <input type="datetime-local" id="updateDueTime" required>
+
+        <button type="submit">Update MCQ Type</button>
+        <button type="button" id="cancelUpdate">Cancel</button>
+    </form>
+</div>
+
+<!-- MCQ Types Table -->
+<table id="mcqTable">
+    <thead>
+        <tr>
+            <th>MCQ Name Unique </th>
+            <th>Description</th>
+            <th>Entry Fee</th>
+            <th>Start Time</th>
+            <th>Due Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Create MCQ Question -->
+<div class="container">
+    <h2>Create MCQ Question</h2>
+    <form id="questionForm">
+        <label for="mcqTypeSelect">Select MCQ Type</label>
+        <select id="mcqTypeSelect" required></select>
+
+        <label for="question">Question</label>
+        <input type="text" id="question" placeholder="Enter question" required>
+
+        <label>Options</label>
+        <input type="text" id="optionA" placeholder="Option A" required>
+        <input type="text" id="optionB" placeholder="Option B" required>
+        <input type="text" id="optionC" placeholder="Option C" required>
+        <input type="text" id="optionD" placeholder="Option D" required>
+
+        <label for="answer">Correct Answer (A/B/C/D)</label>
+        <input type="text" id="answer" maxlength="1" pattern="[ABCD]" required>
+
+        <button type="submit">Add Question</button>
+    </form>
+</div>
+
+<script>
+const baseURL = 'http://localhost:5000';
+
+// ✅ Check teacher login
+const loginData = JSON.parse(localStorage.getItem('teacherLogin'));
+if(!loginData || loginData.expiry < Date.now() || loginData.data.role !== 'teacher'){
+    window.location.href = '../index.html';
+}
+
+// ✅ Display logged-in teacher details
+const teacherData = loginData.data;
+if (teacherData) {
+    document.getElementById('teacherName').textContent = teacherData.name || '';
+    document.getElementById('teacherEmail').textContent = teacherData.email || '';
+    document.getElementById('teacherPhone').textContent = teacherData.phone || '';
+    document.getElementById('teacherDepartment').textContent = teacherData.department || '';
+    document.getElementById('teacherCollegeName').textContent = teacherData.college?.name || '';
+    document.getElementById('teacherCollegeEmail').textContent = teacherData.college?.officialEmail || '';
+    document.getElementById('teacherRole').textContent = teacherData.role || '';
+}
+
+const teacherId = teacherData._id;
+
+// ✅ Restore last selected MCQ Type ID
+let selectedMcqTypeId = localStorage.getItem('selectedMcqTypeId') || '';
+
+// ✅ Fetch MCQ Types
+async function fetchMcqTypes(){
+    try {
+        const res = await fetch(`${baseURL}/api/teachers/mcqtype/teacher/${teacherId}`);
+        const result = await res.json();
+        const tbody = document.querySelector('#mcqTable tbody');
+        const mcqDropdown = document.getElementById('mcqTypeSelect');
+        mcqDropdown.innerHTML = '<option value="">Select MCQ Type</option>';
+        tbody.innerHTML = '';
+
+        if(res.ok){
+            result.data.forEach(mcq => {
+                // Add to Table
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${mcq.name}</td>
+                    <td>${mcq.description || ''}</td>
+                    <td>${mcq.entryFee || 0}</td>
+                    <td>${new Date(mcq.startTimeBeforeStart).toLocaleString()}</td>
+                    <td>${new Date(mcq.dueTimeBeforeStart).toLocaleString()}</td>
+                    <td><button class="edit-btn" onclick="editMcq('${mcq._id}')">Edit</button></td>
+                `;
+                tbody.appendChild(row);
+
+                // Add to Dropdown
+                const option = document.createElement('option');
+                option.value = mcq._id;
+                option.textContent = mcq.name;
+                mcqDropdown.appendChild(option);
+            });
+
+            // Reselect last chosen MCQ Type
+            if(selectedMcqTypeId){
+                mcqDropdown.value = selectedMcqTypeId;
+            }
+        }
+    } catch(err) {
+        alert('Error fetching MCQ Types: ' + err.message);
+    }
+}
+
+// ✅ Create MCQ Type
+document.getElementById('mcqTypeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        teacherId,
+        name: document.getElementById('name').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        imageUrl: document.getElementById('imageUrl').value.trim(),
+        entryFee: parseFloat(document.getElementById('entryFee').value) || 0,
+        startTimeBeforeStart: document.getElementById('startTimeBeforeStart').value,
+        dueTimeBeforeStart: document.getElementById('dueTimeBeforeStart').value
+    };
+
+    try {
+        const res = await fetch(`${baseURL}/api/teachers/mcqtype/add`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if(res.ok){
+            alert('MCQ Type created successfully!');
+            e.target.reset();
+            fetchMcqTypes();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    } catch(err){
+        alert('Error: ' + err.message);
+    }
+});
+
+// ✅ Dropdown Change
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'mcqTypeSelect') {
+        selectedMcqTypeId = e.target.value;
+        localStorage.setItem('selectedMcqTypeId', selectedMcqTypeId);
+    }
+});
+
+// ✅ Create MCQ Question
+document.getElementById('questionForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mcqTypeId = selectedMcqTypeId || document.getElementById('mcqTypeSelect').value;
+    if(!mcqTypeId) return alert('Please select MCQ Type.');
+
+    const data = {
+        mcqTypeId,
+        question: document.getElementById('question').value.trim(),
+        options: {
+            A: document.getElementById('optionA').value.trim(),
+            B: document.getElementById('optionB').value.trim(),
+            C: document.getElementById('optionC').value.trim(),
+            D: document.getElementById('optionD').value.trim()
+        },
+        answer: document.getElementById('answer').value.trim().toUpperCase()
+    };
+
+    try {
+        const res = await fetch(`${baseURL}/api/teachers/mcqquestion/add`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if(res.ok){
+            alert('Question added successfully!');
+            e.target.reset();
+            document.getElementById('mcqTypeSelect').value = selectedMcqTypeId; // Preserve selection
+        } else {
+            alert('Error: ' + (result.error || result.message));
+        }
+    } catch(err){
+        alert('Error: ' + err.message);
+    }
+});
+
+// ✅ Edit MCQ Type
+function editMcq(mcqId){
+    fetch(`${baseURL}/api/teachers/mcqtype/teacher/${teacherId}`)
+    .then(res => res.json())
+    .then(result => {
+        if(result.success){
+            const mcq = result.data.find(m => m._id === mcqId);
+            if(mcq){
+                document.getElementById('updateMcqId').value = mcq._id;
+                document.getElementById('updateName').value = mcq.name;
+                document.getElementById('updateDescription').value = mcq.description || '';
+                document.getElementById('updateImageUrl').value = mcq.imageUrl || '';
+                document.getElementById('updateEntryFee').value = mcq.entryFee || 0;
+                document.getElementById('updateStartTime').value = new Date(mcq.startTimeBeforeStart).toISOString().slice(0,16);
+                document.getElementById('updateDueTime').value = new Date(mcq.dueTimeBeforeStart).toISOString().slice(0,16);
+                document.getElementById('updateForm').style.display = 'block';
+                window.scrollTo(0, document.getElementById('updateForm').offsetTop);
+            }
+        }
+    });
+}
+
+document.getElementById('mcqUpdateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mcqId = document.getElementById('updateMcqId').value;
+    const data = {
+        teacherId,
+        name: document.getElementById('updateName').value.trim(),
+        description: document.getElementById('updateDescription').value.trim(),
+        imageUrl: document.getElementById('updateImageUrl').value.trim(),
+        entryFee: parseFloat(document.getElementById('updateEntryFee').value) || 0,
+        startTimeBeforeStart: document.getElementById('updateStartTime').value,
+        dueTimeBeforeStart: document.getElementById('updateDueTime').value
+    };
+    try {
+        const res = await fetch(`${baseURL}/api/teachers/mcqtype/update/${mcqId}`, {
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if(res.ok){
+            alert('MCQ Type updated successfully!');
+            document.getElementById('updateForm').style.display = 'none';
+            fetchMcqTypes();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    } catch(err) {
+        alert('Error updating MCQ Type: ' + err.message);
+    }
+});
+
+document.getElementById('cancelUpdate').addEventListener('click', () => {
+    document.getElementById('updateForm').style.display = 'none';
+});
+
+// ✅ Lo
+fetchMcqTypes();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings Dashboard | OneTestWinning</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4361ee',
+            secondary: '#3f37c9',
+            accent: '#4895ef',
+            dark: '#1a1a2e',
+            light: '#f8f9fa',
+            success: '#4cc9f0',
+            warning: '#f8961e',
+            danger: '#f72585',
+            gray: {
+              100: '#f8f9fa',
+              200: '#e9ecef',
+              300: '#dee2e6',
+              400: '#ced4da',
+              500: '#adb5bd',
+              600: '#6c757d',
+              700: '#495057',
+              800: '#343a40',
+              900: '#212529',
+            }
+          },
+          boxShadow: {
+            card: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            glow: '0 0 15px rgba(67, 97, 238, 0.3)',
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'spin-slow': 'spin 2s linear infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/css">
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    /* Table row hover effect */
+    .table-row-hover:hover {
+      background-color: rgba(67, 97, 238, 0.05);
+      transform: translateX(4px);
+      transition: all 0.2s ease;
+    }
+    
+    /* Gradient text */
+    .text-gradient {
+      background: linear-gradient(90deg, #4361ee, #4895ef);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- Auth Check Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+      if (!user || isLoggedIn !== 'true') {
+        window.location.href = '../Home.html';
+        return;
+      }
+    });
+  </script>
+
+  <!-- Main Layout -->
+  <div class="min-h-screen flex flex-col">
+    <!-- Top Navigation -->
+    <header class="bg-white shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 flex items-center">
+              <i class="fas fa-trophy text-primary text-2xl mr-2"></i>
+              <span class="text-xl font-bold text-gray-900">OneTestWinning</span>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button id="totalEarningsBtn" class="flex items-center px-4 py-2 bg-primary hover:bg-secondary rounded-lg text-white font-medium transition-colors duration-200">
+              <i class="fas fa-wallet mr-2"></i>
+              Total: ₹<span id="navTotalEarnings" class="font-semibold">0.00</span>
+            </button>
+            <button class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors duration-200">
+              <i class="fas fa-bell"></i>
+            </button>
+            <div class="relative">
+              <button class="flex items-center space-x-2 focus:outline-none">
+                <div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                  <span id="userInitial">U</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8 fade-in">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Earnings Dashboard</h1>
+          <p class="text-gray-600">Track your earnings, attempts, and performance across all tests</p>
+        </div>
+
+        <!-- User Info Card -->
+        <div class="bg-white rounded-xl shadow-card p-6 mb-8 fade-in delay-100">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">User Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p class="text-sm text-gray-500">User ID</p>
+              <p id="userId" class="font-medium text-gray-800 truncate">Loading...</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Name</p>
+              <p id="userName" class="font-medium text-gray-800">Loading...</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Email</p>
+              <p id="userEmail" class="font-medium text-gray-800 truncate">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Total Earnings Card -->
+          <div class="bg-white rounded-xl shadow-card p-6 fade-in delay-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">Total Earnings</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">₹<span id="totalEarnings">0.00</span></p>
+              </div>
+              <div class="p-3 rounded-lg bg-primary bg-opacity-10 text-primary">
+                <i class="fas fa-wallet text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-primary rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Attempts Card -->
+          <div class="bg-white rounded-xl shadow-card p-6 fade-in delay-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">Total Attempts</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1"><span id="totalAttempts">0</span></p>
+              </div>
+              <div class="p-3 rounded-lg bg-accent bg-opacity-10 text-accent">
+                <i class="fas fa-clipboard-check text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-accent rounded-full" style="width: 75%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MCQ Types Card -->
+          <div class="bg-white rounded-xl shadow-card p-6 fade-in delay-400">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">MCQ Types</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1"><span id="mcqTypesCount">0</span></p>
+              </div>
+              <div class="p-3 rounded-lg bg-success bg-opacity-10 text-success">
+                <i class="fas fa-list-alt text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-success rounded-full" style="width: 60%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calculated Earnings Card -->
+          <div class="bg-white rounded-xl shadow-card p-6 fade-in delay-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">Calculated Earnings</p>
+                <p class="text-2xl font-bold text-gray-800 mt-1">₹<span id="calculatedEarnings">0.00</span></p>
+                <p class="text-xs text-gray-400 mt-1">From calculation API</p>
+              </div>
+              <div class="p-3 rounded-lg bg-warning bg-opacity-10 text-warning">
+                <i class="fas fa-calculator text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-warning rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earnings Breakdown Section -->
+        <div class="bg-white rounded-xl shadow-card overflow-hidden mb-8 fade-in">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Earnings by MCQ Type</h2>
+            <p class="text-sm text-gray-500">Detailed breakdown of your earnings across different test types</p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MCQ Name</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Earnings</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempts</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg %</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Best Rank</th>
+                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="earningsTableBody" class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Loading earnings data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Attempt Details Section (Hidden by default) -->
+        <div id="attemptDetails" class="hidden bg-white rounded-xl shadow-card overflow-hidden mb-8">
+          <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-800">Attempt Details for <span id="currentMcqType" class="text-primary">MCQ Type</span></h2>
+              <p class="text-sm text-gray-500">Detailed history of your attempts for this test type</p>
+            </div>
+            <button onclick="hideAttemptDetails()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition-colors duration-200">
+              <i class="fas fa-arrow-left mr-2"></i> Back to Overview
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Won</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody id="attemptsTableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Attempt data will be inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Calculated Earnings Section -->
+        <div class="bg-white rounded-xl shadow-card overflow-hidden fade-in">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Calculated Earnings Breakdown</h2>
+            <p class="text-sm text-gray-500">Earnings calculated by our verification system</p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MCQ Name</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody id="calculatedEarningsTableBody" class="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Loading calculated earnings data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Withdrawal Form (Hidden by default) -->
+        <div id="amountForm" class="hidden bg-white rounded-xl shadow-card p-6 mt-8 fade-in">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Transfer to Wallet</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2">
+              <label for="transferAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount to Transfer (₹)</label>
+              <div class="relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-500 sm:text-sm">₹</span>
+                </div>
+                <input type="number" id="transferAmount" class="focus:ring-primary focus:border-primary block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md py-2 border" placeholder="0.00">
+                <div class="absolute inset-y-0 right-0 flex items-center">
+                  <span class="text-gray-500 sm:text-sm mr-3">Available: ₹<span id="availableBalance">0.00</span></span>
+                </div>
+              </div>
+              <p id="amountError" class="mt-1 text-sm text-danger hidden"></p>
+            </div>
+            <div class="flex items-end">
+              <button id="transferBtn" onclick="transferToWallet()" class="w-full bg-primary hover:bg-secondary text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center">
+                <i class="fas fa-paper-plane mr-2"></i> Transfer Now
+              </button>
+            </div>
+          </div>
+          <div id="transferStatus" class="mt-4 text-sm"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="flex items-center mb-4 md:mb-0">
+            <i class="fas fa-trophy text-primary text-xl mr-2"></i>
+            <span class="text-lg font-semibold text-gray-900">OneTestWinning</span>
+          </div>
+          <div class="flex space-x-6">
+            <a href="#" class="text-gray-500 hover:text-primary transition-colors duration-200">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-primary transition-colors duration-200">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-primary transition-colors duration-200">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-primary transition-colors duration-200">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+          </div>
+          <div class="text-sm text-gray-500 mt-4 md:mt-0">
+            &copy; 2023 OneTestWinning. All rights reserved.
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Global variables
+    let earningsData = null;
+    let calculatedEarningsData = null;
+    let currentUserId = null;
+    const API_BASE_URL = 'http://localhost:5000/api'; // Replace with your actual API base URL
+
+    // DOM Content Loaded
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Get user data from localStorage
+        const user = JSON.parse(localStorage.getItem('user'));
+        currentUserId = user?._id || user?.id;
+        
+        if (!currentUserId) {
+          throw new Error('User not logged in');
+        }
+
+        // Set basic user info
+        document.getElementById('userId').textContent = currentUserId;
+        document.getElementById('userName').textContent = user?.name || user?.username || 'N/A';
+        document.getElementById('userEmail').textContent = user?.email || 'N/A';
+        
+        // Set user initial
+        const name = user?.name || user?.username || 'U';
+        document.getElementById('userInitial').textContent = name.charAt(0).toUpperCase();
+
+        // Load earnings data
+        await loadEarningsData(currentUserId);
+        
+        // Load calculated earnings data
+        await loadCalculatedEarningsData(currentUserId);
+      } catch (error) {
+        console.error('Initialization error:', error);
+        document.getElementById('earningsTableBody').innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-danger">
+              <i class="fas fa-exclamation-circle mr-2"></i> ${error.message || 'Failed to load data'}
+            </td>
+          </tr>
+        `;
+      }
+    });
+
+    // Load earnings data from API
+    async function loadEarningsData(userId) {
+      try {
+        // Show loading state
+        document.getElementById('earningsTableBody').innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+              <i class="fas fa-spinner fa-spin mr-2"></i> Loading data...
+            </td>
+          </tr>
+        `;
+        document.getElementById('amountForm').classList.add('hidden');
+
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/earnings`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const responseData = await response.json();
+
+        // Process the data for display
+        earningsData = {
+          totalEarnings: responseData.totalEarnings || 0,
+          totalAttempts: responseData.totalAttempts || 0,
+          participatedInMcqs: responseData.participatedInMcqs || 0,
+          mcqBreakdown: (responseData.mcqBreakdown || []).map(mcq => ({
+            mcqTypeId: mcq.mcqTypeId,
+            mcqName: mcq.mcqName || 'Unnamed MCQ',
+            totalEarnings: mcq.totalEarnings || 0,
+            attempts: mcq.attempts || 0,
+            averagePercentage: parseFloat(mcq.averagePercentage) || 0,
+            bestRank: mcq.bestRank || 'N/A',
+            history: (mcq.history || []).map(attempt => ({
+              date: new Date(attempt.date || Date.now()),
+              percentage: attempt.percentage || 0,
+              amountWon: attempt.amountWon || 0,
+              rank: attempt.rank || 'N/A',
+              status: attempt.status || 'unknown'
+            }))
+          }))
+        };
+
+        updateSummaryStats();
+        populateEarningsTable();
+        
+        // Show amount form if there are earnings
+        if (earningsData.totalEarnings > 0) {
+          document.getElementById('amountForm').classList.remove('hidden');
+          document.getElementById('availableBalance').textContent = earningsData.totalEarnings.toFixed(2);
+        }
+        
+      } catch (error) {
+        console.error('Error loading earnings data:', error);
+        document.getElementById('earningsTableBody').innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-danger">
+              <i class="fas fa-exclamation-circle mr-2"></i> ${error.message || 'Failed to load data'}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Load calculated earnings data from API
+    async function loadCalculatedEarningsData(userId) {
+      try {
+        document.getElementById('calculatedEarningsTableBody').innerHTML = `
+          <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+              <i class="fas fa-spinner fa-spin mr-2"></i> Loading calculated earnings data...
+            </td>
+          </tr>
+        `;
+
+        // Make API call to get calculated earnings
+        const response = await fetch(`${API_BASE_URL}/calculate-amounts/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        
+        if (!responseData.success || !responseData.data) {
+          throw new Error(responseData.message || 'No calculated earnings data found');
+        }
+
+        calculatedEarningsData = responseData.data;
+        updateCalculatedEarningsDisplay();
+        
+      } catch (error) {
+        console.error('Error loading calculated earnings data:', error);
+        document.getElementById('calculatedEarningsTableBody').innerHTML = `
+          <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-danger">
+              <i class="fas fa-exclamation-circle mr-2"></i> ${error.message || 'Failed to load calculated earnings data'}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function updateCalculatedEarningsDisplay() {
+      if (!calculatedEarningsData) return;
+      
+      // Update the calculated earnings in the summary
+      document.getElementById('calculatedEarnings').textContent = 
+        calculatedEarningsData.totalEarnings?.toFixed(2) || '0.00';
+      
+      // Update the calculated earnings table
+      const tableBody = document.getElementById('calculatedEarningsTableBody');
+      tableBody.innerHTML = '';
+      
+      if (!calculatedEarningsData.mcqTypeEarnings || 
+          Object.keys(calculatedEarningsData.mcqTypeEarnings).length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+              No calculated earnings breakdown available
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Add rows for each MCQ type
+      Object.entries(calculatedEarningsData.mcqTypeEarnings).forEach(([mcqTypeId, mcqData]) => {
+        const row = document.createElement('tr');
+        row.className = 'table-row-hover';
+        
+        // Determine status color
+        let statusColor = 'text-gray-500';
+        if (mcqData.status === 'verified') statusColor = 'text-success';
+        else if (mcqData.status === 'pending') statusColor = 'text-warning';
+        else if (mcqData.status === 'failed') statusColor = 'text-danger';
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary">
+                <i class="fas fa-question-circle"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${mcqData.mcqName || 'Unnamed MCQ'}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900 font-semibold">₹${mcqData.userAmount?.toFixed(2) || '0.00'}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+              ${mcqData.status || 'unknown'}
+            </span>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    async function transferToWallet() {
+      const amountInput = document.getElementById('transferAmount');
+      const amountError = document.getElementById('amountError');
+      const transferBtn = document.getElementById('transferBtn');
+      const transferStatus = document.getElementById('transferStatus');
+      
+      // Reset status
+      amountError.textContent = '';
+      amountError.classList.add('hidden');
+      transferStatus.textContent = '';
+      transferStatus.className = 'mt-4 text-sm';
+      
+      // Validate input
+      const amount = parseFloat(amountInput.value);
+      
+      if (isNaN(amount)) {
+        amountError.textContent = 'Please enter a valid amount';
+        amountError.classList.remove('hidden');
+        return;
+      }
+      
+      if (amount <= 0) {
+        amountError.textContent = 'Amount must be greater than zero';
+        amountError.classList.remove('hidden');
+        return;
+      }
+      
+      if (amount > earningsData.totalEarnings) {
+        amountError.textContent = 'Amount cannot exceed total earnings';
+        amountError.classList.remove('hidden');
+        return;
+      }
+      
+      // Disable button during transfer
+      transferBtn.disabled = true;
+      transferBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+      transferStatus.textContent = 'Processing transfer request...';
+      
+      try {
+        // Make API call to transfer amount
+        const response = await fetch(`${API_BASE_URL}/transfer`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: currentUserId,
+            amount: amount
+          })
+        });
+
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Transfer failed');
+        }
+        
+        transferStatus.textContent = 'Transfer successful! Your amount will be credited to your wallet shortly.';
+        transferStatus.className = 'mt-4 text-sm text-success';
+        
+        // Update the displayed balance
+        earningsData.totalEarnings -= amount;
+        updateSummaryStats();
+        document.getElementById('availableBalance').textContent = earningsData.totalEarnings.toFixed(2);
+        document.getElementById('navTotalEarnings').textContent = earningsData.totalEarnings.toFixed(2);
+        
+        // Reset form
+        amountInput.value = '';
+        
+      } catch (error) {
+        console.error('Transfer error:', error);
+        transferStatus.textContent = `Error: ${error.message}`;
+        transferStatus.className = 'mt-4 text-sm text-danger';
+      } finally {
+        transferBtn.disabled = false;
+        transferBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Transfer Now';
+      }
+    }
+
+    function updateSummaryStats() {
+      const totalEarnings = earningsData?.totalEarnings?.toFixed(2) || '0.00';
+      document.getElementById('totalEarnings').textContent = totalEarnings;
+      document.getElementById('navTotalEarnings').textContent = totalEarnings;
+      document.getElementById('totalAttempts').textContent = earningsData?.totalAttempts || 0;
+      document.getElementById('mcqTypesCount').textContent = earningsData?.participatedInMcqs || 0;
+    }
+
+    function populateEarningsTable() {
+      const tableBody = document.getElementById('earningsTableBody');
+      
+      if (!earningsData?.mcqBreakdown?.length) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+              No earnings data available
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Clear existing rows
+      tableBody.innerHTML = '';
+      
+      // Add rows for each MCQ type
+      earningsData.mcqBreakdown.forEach(mcq => {
+        const row = document.createElement('tr');
+        row.className = 'table-row-hover cursor-pointer';
+        row.addEventListener('click', () => showAttemptDetails(mcq));
+        
+        // Determine row color based on earnings
+        let earningsColor = 'text-gray-600';
+        if (mcq.totalEarnings > 500) earningsColor = 'text-success';
+        else if (mcq.totalEarnings > 100) earningsColor = 'text-primary';
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary">
+                <i class="fas fa-question-circle"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${mcq.mcqName}</div>
+                <div class="text-sm text-gray-500">ID: ${mcq.mcqTypeId}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm ${earningsColor} font-semibold">₹${mcq.totalEarnings.toFixed(2)}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${mcq.attempts}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="w-16 mr-2">
+                <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-accent rounded-full" style="width: ${mcq.averagePercentage}%"></div>
+                </div>
+              </div>
+              <div class="text-sm text-gray-900">${mcq.averagePercentage.toFixed(1)}%</div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${mcq.bestRank === 'N/A' ? 'bg-gray-100 text-gray-800' : 'bg-success bg-opacity-10 text-success'}">
+              ${mcq.bestRank}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button onclick="event.stopPropagation(); showAttemptDetails(${JSON.stringify(mcq).replace(/"/g, '&quot;')})" 
+                    class="text-accent hover:text-secondary mr-3">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button onclick="event.stopPropagation();" class="text-primary hover:text-secondary">
+              <i class="fas fa-download"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function showAttemptDetails(mcq) {
+      // Update the MCQ type title
+      document.getElementById('currentMcqType').textContent = mcq.mcqName;
+      
+      // Populate the attempts table
+      const tableBody = document.getElementById('attemptsTableBody');
+      tableBody.innerHTML = '';
+      
+      if (!mcq.history?.length) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+              No attempt history available
+            </td>
+          </tr>
+        `;
+      } else {
+        mcq.history.forEach(attempt => {
+          const row = document.createElement('tr');
+          row.className = 'table-row-hover';
+          
+          // Format date
+          const formattedDate = attempt.date.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          });
+          
+          // Determine status color and icon
+          let statusColor = 'text-gray-500';
+          let statusIcon = 'fa-question-circle';
+          if (attempt.status === 'completed') {
+            statusColor = 'text-success';
+            statusIcon = 'fa-check-circle';
+          } else if (attempt.status === 'pending') {
+            statusColor = 'text-warning';
+            statusIcon = 'fa-clock';
+          } else if (attempt.status === 'failed') {
+            statusColor = 'text-danger';
+            statusIcon = 'fa-times-circle';
+          }
+          
+          row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${formattedDate}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${attempt.percentage}%</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900 font-semibold">₹${attempt.amountWon.toFixed(2)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${attempt.rank === 'N/A' ? 'bg-gray-100 text-gray-800' : 'bg-primary bg-opacity-10 text-primary'}">
+                ${attempt.rank}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center ${statusColor}">
+                <i class="fas ${statusIcon} mr-1"></i>
+                <span class="capitalize">${attempt.status}</span>
+              </div>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+      
+      // Show the attempts section and hide the overview
+      document.getElementById('earningsTableBody').parentElement.parentElement.classList.add('hidden');
+      document.getElementById('attemptDetails').classList.remove('hidden');
+    }
+
+    function hideAttemptDetails() {
+      // Show the overview and hide the attempts section
+      document.getElementById('earningsTableBody').parentElement.parentElement.classList.remove('hidden');
+      document.getElementById('attemptDetails').classList.add('hidden');
+    }
+
+    // Utility function to format currency
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2
+      }).format(amount);
+    }
+  </script>
+</body>
+</html>

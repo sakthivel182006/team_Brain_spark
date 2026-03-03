@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Analysis Dashboard · enhanced</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f7fc;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 2rem 2rem 3rem;
+      color: #1e293b;
+    }
+
+    /* modern header */
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(145deg, #1e2b45, #0f1a2f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .teacher-chip {
+      background: white;
+      padding: 0.6rem 1.6rem;
+      border-radius: 40px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(67, 97, 238, 0.15);
+      color: #1e293b;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .teacher-chip::before {
+      content: "👩‍🏫";
+      font-size: 1.3rem;
+    }
+
+    /* stats summary */
+    .stats-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.8rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 28px;
+      padding: 1.4rem 2.2rem;
+      box-shadow: 0 10px 20px -8px rgba(0,20,40,0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 1px solid #f0f4fa;
+      flex: 1 1 200px;
+    }
+
+    .stat-icon {
+      font-size: 2.2rem;
+    }
+
+    .stat-content h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #5b687c;
+      letter-spacing: 0.3px;
+    }
+
+    .stat-content .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f1829;
+      line-height: 1.2;
+    }
+
+    /* analysis grid */
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.8rem;
+      margin-top: 1rem;
+    }
+
+    .analysis-card {
+      background: white;
+      border-radius: 32px;
+      padding: 1.6rem 1.8rem 2rem;
+      box-shadow: 0 20px 30px -10px rgba(0, 15, 40, 0.1);
+      transition: all 0.2s ease;
+      border: 1px solid #eef2f8;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .analysis-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 40px -15px rgba(18, 52, 106, 0.2);
+      border-color: #cddffb;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .title-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .course-name {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #0f1829;
+      line-height: 1.3;
+    }
+
+    .module-name {
+      font-size: 0.95rem;
+      color: #5e6f8d;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .module-name::before {
+      content: "📘";
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .health-badge {
+      background: #ecfdf3;
+      color: #0e6b3e;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1px solid #abefc6;
+      white-space: nowrap;
+      margin-left: 10px;
+    }
+
+    .health-badge.low {
+      background: #fff0f0;
+      color: #b91c1c;
+      border-color: #fbc5c5;
+    }
+
+    .health-badge.medium {
+      background: #fffbeb;
+      color: #b45309;
+      border-color: #fde68a;
+    }
+
+    /* score bar modern */
+    .score-container {
+      margin: 1rem 0 1.2rem;
+    }
+
+    .score-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      height: 18px;
+      background: #e9eef5;
+      border-radius: 60px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 4px #d9e2ef;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      border-radius: 60px;
+      transition: width 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .progress-fill.good {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .progress-fill.medium {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .progress-fill.bad {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .ai-summary {
+      background: #f8fafd;
+      padding: 1rem 1.2rem;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #1f2a44;
+      border: 1px solid #e4eefa;
+      margin-top: 0.5rem;
+      flex: 1;
+    }
+
+    .empty-state {
+      background: white;
+      border-radius: 40px;
+      padding: 3rem;
+      text-align: center;
+      color: #65748c;
+      font-size: 1.2rem;
+      border: 2px dashed #cddcf0;
+      width: 100%;
+    }
+
+    .loading-skeleton {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+      background: white;
+      border-radius: 40px;
+      font-size: 1.2rem;
+      color: #5a6d86;
+    }
+
+    .spinner-mini {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #4361ee;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 12px;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    hr {
+      border: none;
+      border-top: 2px solid #eaf0f6;
+      margin: 2rem 0 1rem;
+    }
+
+    /* small tweaks */
+    .footer-note {
+      color: #7e8aa4;
+      margin-top: 2.5rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard-header">
+  <h1>
+    <span>🧠</span> AI Feedback Analysis
+  </h1>
+  <div class="teacher-chip" id="teacherName"></div>
+</div>
+
+<!-- dynamic stats injected via js -->
+<div class="stats-row" id="statsRow"></div>
+
+<!-- analysis grid container -->
+<div id="analysisContainer"></div>
+
+<div class="footer-note">
+  ⚡ real‑time health scores based on student feedback & AI review
+</div>
+
+<script>
+  const API_BASE = "http://localhost:5000/api/agent";
+  const loginData = JSON.parse(localStorage.getItem("teacherLogin"));
+
+  if (!loginData || loginData.expiry < Date.now()) {
+    alert("Session expired. Please login again.");
+    window.location.href = "../index.html";
+  }
+
+  const teacherData = loginData.data;
+  document.getElementById("teacherName").innerText = teacherData.name;
+
+  // stats elements
+  const statsRow = document.getElementById("statsRow");
+  const container = document.getElementById("analysisContainer");
+
+  // initial loading
+  container.innerHTML = `<div class="loading-skeleton"><div class="spinner-mini"></div>  Loading AI analyses...</div>`;
+
+  loadAIAnalyses();
+
+  async function loadAIAnalyses() {
+    try {
+      const res = await fetch(`${API_BASE}/llm/analysis/teacher/${teacherData._id}`);
+      const data = await res.json();
+
+      if (!data.success || !data.analyses || data.analyses.length === 0) {
+        container.innerHTML = `<div class="empty-state">📭 No AI analyses found for this teacher.<br>Run an analysis from the teacher dashboard first.</div>`;
+        statsRow.innerHTML = '';  // hide stats
+        return;
+      }
+
+      const analyses = data.analyses;
+
+      // compute stats
+      const total = analyses.length;
+      const avgScore = (analyses.reduce((acc, item) => acc + (item.healthScore || 0), 0) / total).toFixed(1);
+      const healthyCount = analyses.filter(a => (a.healthScore || 0) >= 75).length;
+      const criticalCount = analyses.filter(a => (a.healthScore || 0) < 50).length;
+
+      // render stats cards
+      statsRow.innerHTML = `
+        <div class="stat-card">
+          <span class="stat-icon">📊</span>
+          <div class="stat-content">
+            <h3>Total analyses</h3>
+            <div class="value">${total}</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⚖️</span>
+          <div class="stat-content">
+            <h3>Avg health score</h3>
+            <div class="value">${avgScore}%</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✅</span>
+          <div class="stat-content">
+            <h3>Healthy (≥75)</h3>
+            <div class="value">${healthyCount}</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">⚠️</span>
+          <div class="stat-content">
+            <h3>Needs attention (<50)</h3>
+            <div class="value">${criticalCount}</div>
+          </div>
+        </div>
+      `;
+
+      // build grid cards
+      let cardsHtml = '<div class="analysis-grid">';
+
+      analyses.forEach(item => {
+        const score = item.healthScore || 0;
+        let healthLabel = 'good';
+        let healthText = 'Healthy';
+        if (score < 50) {
+          healthLabel = 'low';
+          healthText = 'Critical';
+        } else if (score < 75) {
+          healthLabel = 'medium';
+          healthText = 'Needs review';
+        }
+
+        // determine class for progress fill
+        let fillClass = 'good';
+        if (score < 50) fillClass = 'bad';
+        else if (score < 75) fillClass = 'medium';
+
+        const courseTitle = item.courseId?.title || 'Unknown course';
+        const moduleTitle = item.moduleId?.title || 'Unknown module';
+        const aiResult = item.aiResult || 'No detailed summary available.';
+
+        cardsHtml += `
+          <div class="analysis-card">
+            <div class="card-header">
+              <div class="title-group">
+                <span class="course-name">${escapeHtml(courseTitle)}</span>
+                <span class="module-name">${escapeHtml(moduleTitle)}</span>
+              </div>
+              <span class="health-badge ${healthLabel}">${healthText}</span>
+            </div>
+
+            <div class="score-container">
+              <div class="score-label">
+                <span>Health score</span>
+                <span><strong>${score}</strong> / 100</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-fill ${fillClass}" style="width:${score}%;">
+                  ${score > 30 ? score+'%' : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-summary">
+              ${escapeHtml(aiResult).replace(/\n/g, '<br>')}
+            </div>
+          </div>
+        `;
+      });
+
+      cardsHtml += '</div>';
+      container.innerHTML = cardsHtml;
+
+    } catch (error) {
+      console.error('Failed to load analyses:', error);
+      container.innerHTML = `<div class="empty-state" style="color:#b91c1c;">❌ Error loading analyses. Please check the console or API.</div>`;
+      statsRow.innerHTML = '';
+    }
+  }
+
+  // simple escape for XSS
+  function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+</script>
+
+</body>
+</html>

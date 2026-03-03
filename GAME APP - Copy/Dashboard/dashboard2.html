@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+        
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .avatar-initial {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-message {
+            animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <script>
+        // ======================
+// SECURITY: BLOCK DEVELOPER TOOLS
+// ======================
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    showAdminBlock();
+    return false;
+});
+
+document.addEventListener('keydown', function(e) {
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+    if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C')
+    ) {
+        e.preventDefault();
+        showAdminBlock();
+        return false;
+    }
+});
+
+// Function to show admin block message
+function showAdminBlock() {
+    const adminBlock = document.getElementById('adminBlock');
+    adminBlock.style.display = 'flex';
+    setTimeout(() => {
+        adminBlock.style.display = 'none';
+    }, 3000);
+}
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            // Check if user is not logged in
+            if (!user || isLoggedIn !== 'true') {
+                // Redirect to Home.html in the same folder
+                window.location.href = '../Home.html';
+                return;
+            }
+
+            // Display username if available
+            if (user && user.username) {
+                const usernameElement = document.getElementById('username-display');
+                if (usernameElement) {
+                    usernameElement.textContent = user.username;
+                }
+            }
+        });
+    </script>
+    
+    <div class="container mx-auto p-4 max-w-7xl">
+        <!-- Header with user info -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+                <p class="text-gray-600">Welcome back, <span id="username-display" class="font-medium"></span></p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='../Home.html'" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Back To Home
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 mb-8">
+            <li class="me-2">
+                <a href="#" class="inline-block p-4 rounded-t-lg tab-active">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="me-2">
+                <a href="testsubmitedetails.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-file-alt mr-2"></i>Submit MCQ Details
+                </a>
+            </li>
+            <li class="me-2">
+                <a href="payments.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-wallet mr-2"></i>Deposit
+                </a>
+            </li>
+            <li class="me-2">
+                <a href="balance.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-wallet mr-2"></i>Balance
+                </a>
+            </li>
+            <li class="me-2">
+                <a href="../settings.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </a>
+            </li>
+           
+            <li class="me-2">
+                <a href="WinningAmount.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-trophy mr-2"></i>Winning Amount
+                </a>
+            </li>
+             <li class="me-2">
+                <a href="purchasesmcqtypes.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-address-book mr-2"></i>Purchased Mcq Details
+                </a>
+            </li>
+            <li class="me-2">
+                <a href="admincontact.html" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-address-book mr-2"></i>Admin
+                </a>
+            </li>
+            
+        </ul>
+
+        <!-- Quick Access Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Submit MCQ Card -->
+            <div class="card bg-white rounded-xl p-6 cursor-pointer" onclick="window.location.href='testsubmitedetails.html'">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Submit MCQ Details</h3>
+                        <p class="text-gray-600 mt-1">Submit your test details for evaluation</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-file-alt text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn-gradient text-white px-4 py-2 rounded-lg w-full">
+                        Go to Submission <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Deposit Card -->
+            <div class="card bg-white rounded-xl p-6 cursor-pointer" onclick="window.location.href='payments.html'">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Deposit Funds</h3>
+                        <p class="text-gray-600 mt-1">Add funds to your account balance</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-money-bill-wave text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn-gradient text-white px-4 py-2 rounded-lg w-full">
+                        Make Deposit <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="card bg-white rounded-xl p-6 cursor-pointer" onclick="window.location.href='balance.html'">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Account Balance</h3>
+                        <p class="text-gray-600 mt-1">View your current balance</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-wallet text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn-gradient text-white px-4 py-2 rounded-lg w-full">
+                        Check Balance <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Winning Amount Section -->
+            <div class="card bg-white rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Winning Amount</h3>
+                    <a href="WinningAmount.html" class="text-blue-600 hover:underline">View All</a>
+                </div>
+                <p class="text-gray-600 mb-4">Check your winnings and prize details</p>
+                <button onclick="window.location.href='WinningAmount.html'" class="btn-gradient text-white px-4 py-2 rounded-lg w-full">
+                    <i class="fas fa-trophy mr-2"></i> View Winnings
+                </button>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="card bg-white rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Account Settings</h3>
+                    <a href="../settings.html" class="text-blue-600 hover:underline">Manage</a>
+                </div>
+                <p class="text-gray-600 mb-4">Update your profile and security settings</p>
+                <button onclick="window.location.href='../settings.html'" class="btn-gradient text-white px-4 py-2 rounded-lg w-full">
+                    <i class="fas fa-cog mr-2"></i> Go to Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Activity (Placeholder) -->
+        <div class="card bg-white rounded-xl p-6 mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-history text-4xl mb-2"></i>
+                <p>Your recent activities will appear here</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

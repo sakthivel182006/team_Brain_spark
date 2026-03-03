@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Reference - Payment & Purchase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f8fa;
+      margin: 30px;
+    }
+    h1 {
+      color: #333;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: white;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    code {
+      background-color: #eef;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>API Reference - Payment and Purchase</h1>
+
+  <table>
+    <tr>
+      <th>Method Name</th>
+      <th>HTTP Method</th>
+      <th>Endpoint Path</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><code>createOrder</code></td>
+      <td>POST</td>
+      <td>/create-order</td>
+      <td>Create a Razorpay order</td>
+    </tr>
+    <tr>
+      <td><code>paymentSuccess</code></td>
+      <td>POST</td>
+      <td>/payment-success</td>
+      <td>Handle payment success and store amount</td>
+    </tr>
+    <tr>
+      <td><code>getBalanceByUserId</code></td>
+      <td>GET</td>
+      <td>/balance/:userId</td>
+      <td>Get remaining balance for user</td>
+    </tr>
+    <tr>
+      <td><code>getTransactionHistory</code></td>
+      <td>GET</td>
+      <td>/transactions/:userId</td>
+      <td>Get order/transaction history</td>
+    </tr>
+    <tr>
+      <td><code>purchaseProduct</code></td>
+      <td>POST</td>
+      <td>/purchase</td>
+      <td>Deduct amount & store purchase record</td>
+    </tr>
+  </table>
+
+</body>
+</html>

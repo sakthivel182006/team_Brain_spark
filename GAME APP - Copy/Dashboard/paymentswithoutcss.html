@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Razorpay Integration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #user-info {
+      background-color: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get user data from localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+      // Check if user is logged in
+      if (!user || isLoggedIn !== 'true') {
+        // Current page: D:/.../Dashboard/payments.html
+        // Target page: D:/.../Dashboard/index.html (in the same folder)
+        window.location.href = '../Home.html'; // Corrected: direct filename for same folder
+        return; // Stop further execution of this script
+      }
+    
+
+      // If logged in, set profile data (optional, but good practice if you have these elements)
+      const profilePicture = document.getElementById('userImage');
+      const profileName = document.getElementById('profile-name');
+      const profileEmail = document.getElementById('profile-email');
+
+      if (profilePicture) profilePicture.src = user.profilePicture || 'https://flowbite.com/docs/images/people/profile-picture-5.jpg';
+      if (profileName) profileName.textContent = user.name || user.username || 'User';
+      if (profileEmail) profileEmail.textContent = user.email || 'user@example.com';
+
+      // Logout function (if you have logout buttons on this page)
+      const signOutBtn = document.getElementById('sign-out-btn');
+      const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+
+      const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('isLoggedIn');
+        // Redirect to index.html in the same folder upon logout
+        window.location.href = './index.html'; // Corrected: direct filename for same folder
+      };
+
+      if (signOutBtn) signOutBtn.addEventListener('click', handleLogout);
+      if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', handleLogout);
+
+      // Display User ID on page load (now inside DOMContentLoaded to ensure elements exist)
+      const userInfo = getLoggedInUserInfo();
+      const displayUserIdElement = document.getElementById('displayUserId');
+      if (displayUserIdElement) {
+          displayUserIdElement.textContent = userInfo.id;
+      }
+    });
+
+    // Function to get logged in user info (can be outside DOMContentLoaded if called only after DOM is ready)
+    function getLoggedInUserInfo() {
+      const userString = localStorage.getItem('user');
+      let userId = 'N/A';
+      let userName = 'Guest';
+      let userEmail = '';
+      let userInitial = 'G';
+
+      if (userString) {
+        try {
+          const userData = JSON.parse(userString);
+          userId = userData._id || userData.id || userData.userId || userData.userID || 'N/A';
+          userName = userData.username || userData.fullName || userData.name || 'Unknown User';
+          userEmail = userData.email || '';
+          userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+        } catch (e) {
+          userName = 'Error User';
+          userId = 'Error';
+          userInitial = 'E';
+        }
+      }
+
+      return {
+        id: userId,
+        name: userName,
+        email: userEmail,
+        initial: userInitial
+      };
+    }
+  </script>
+
+  <div id="user-info">
+    <strong>Logged in User ID:</strong> <span id="displayUserId">Loading...</span>
+  </div>
+
+  <h2>Pay with Razorpay</h2>
+  <form id="payment-form">
+    <label for="amount">Enter Amount (INR): </label>
+    <input type="number" id="amount" name="amount" required />
+    <button type="button" onclick="payNow()">Pay Now</button>
+  </form>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    // Razorpay payment handler
+    async function payNow() {
+      const amountInput = document.getElementById("amount").value.trim();
+      const enteredAmount = parseFloat(amountInput);
+
+      if (!enteredAmount || enteredAmount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+      }
+
+      const amount = Math.round(enteredAmount * 100);
+      const userInfo = getLoggedInUserInfo();
+      const userId = userInfo.id;
+
+      try {
+        const orderResponse = await fetch("http://localhost:5000/api/create-order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ amount, userId })
+        });
+
+        const orderData = await orderResponse.json();
+        if (!orderData.id) throw new Error("Invalid order response");
+
+        const options = {
+          key: "rzp_test_4LPGV7rP4wBreT",
+          amount: orderData.amount,
+          currency: "INR",
+          name: "Acme Corp",
+          description: "Test Transaction",
+          order_id: orderData.id,
+          handler: async function (response) {
+            const successResponse = await fetch("http://localhost:5000/api/payment-success", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                userId,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id
+              })
+            });
+
+            const result = await successResponse.json();
+            alert("Payment successful!");
+          },
+          prefill: {
+            name: userInfo.name,
+            email: userInfo.email,
+            contact: "9999999999"
+          },
+          theme: {
+            color: "#3399cc"
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (error) {
+        console.error("Payment error:", error);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+  </script>
+</body>
+</html>

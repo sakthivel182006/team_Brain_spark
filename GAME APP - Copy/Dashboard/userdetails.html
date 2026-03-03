@@ -1,0 +1,78 @@
+/**
+ * Retrieves the logged-in user's ID, name, email, and initial from localStorage.
+ * It handles cases where user data might be missing or malformed.
+ *
+ * @returns {object} An object containing:
+ * - id: The user's ID (string, e.g., '60c72b2f9c8d4a0015f8e2e4' or 'N/A')
+ * - name: The user's display name (string, e.g., 'John Doe' or 'Guest')
+ * - email: The user's email (string, e.g., 'john.doe@example.com' or '')
+ * - initial: The first letter of the user's name, capitalized (string, e.g., 'J' or 'G')
+ */
+function getLoggedInUserInfo() {
+    const userString = localStorage.getItem('user');
+    let userId = 'N/A';
+    let userName = 'Guest';
+    let userEmail = '';
+    let userInitial = 'G'; // Default initial for 'Guest'
+
+    if (userString) {
+        try {
+            const userData = JSON.parse(userString);
+
+            // Prioritize common ID fields
+            userId = userData._id || userData.id || userData.userId || userData.userID || 'N/A';
+
+            // Prioritize username, then fullName, then name
+            userName = userData.username || userData.fullName || userData.name || 'Unknown User';
+
+            userEmail = userData.email || '';
+
+            // Get the first character of the name, if available, and capitalize it
+            userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+
+        } catch (e) {
+            console.error('Error parsing user data from localStorage:', e);
+            // In case of parsing error, set error-specific values
+            userName = 'Error User';
+            userId = 'Error';
+            userInitial = 'E';
+        }
+    } else {
+        console.warn("User data not found in localStorage.");
+        // Values remain 'N/A', 'Guest', 'G' as initialized
+    }
+
+    return {
+        id: userId,
+        name: userName,
+        email: userEmail,
+        initial: userInitial
+    };
+}
+
+// --- How to use this function ---
+
+// In your DOMContentLoaded or any other script section:
+/*
+document.addEventListener('DOMContentLoaded', () => {
+    const userInfo = getLoggedInUserInfo();
+
+    // Now you can use userInfo.id, userInfo.name, userInfo.email, userInfo.initial
+    // to update your HTML elements or use in other logic.
+
+    const usernameElement = document.getElementById('username');
+    const userIdElement = document.getElementById('userId');
+    const userInitialElement = document.getElementById('userInitial');
+    const displayUserIdElement = document.getElementById('displayUserId'); // If you have this element
+
+    if (usernameElement) usernameElement.textContent = userInfo.name;
+    if (userIdElement) userIdElement.textContent = `ID: ${userInfo.id}`;
+    if (userInitialElement) userInitialElement.textContent = userInfo.initial;
+    if (displayUserIdElement) displayUserIdElement.textContent = userInfo.id; // For the "Your Exam ID" or similar
+
+    // For Razorpay prefill or other uses:
+    // let currentUserId = userInfo.id;
+    // let currentUserName = userInfo.name;
+    // let currentUserEmail = userInfo.email;
+});
+*/

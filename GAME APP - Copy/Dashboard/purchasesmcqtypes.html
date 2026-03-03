@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Purchase Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .rotate {
+      animation: rotate 1s linear infinite;
+    }
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Purchase Dashboard</h1>
+        <p class="text-gray-600">View all purchase details for your account</p>
+      </div>
+      <button onclick="goBack()" class="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-all duration-200">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
+      </button>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8 fade-in">
+      <div class="p-6">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 text-xl font-bold" id="userInitial">
+              G
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h2 class="text-xl font-semibold text-gray-800 truncate" id="userName">Loading...</h2>
+            <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <i class="fas fa-user mr-2"></i>
+                <span id="userId">Loading...</span>
+              </div>
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <i class="fas fa-envelope mr-2"></i>
+                <span id="userEmail">Loading...</span>
+              </div>
+            </div>
+          </div>
+          <div class="hidden md:flex items-center">
+            <span class="px-3 py-1 bg-primary-100 text-primary-800 text-sm font-medium rounded-full">
+              Active User
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-md p-6 fade-in">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Total Purchases</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900" id="totalPurchases">0</p>
+          </div>
+          <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+            <i class="fas fa-shopping-cart text-primary-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl shadow-md p-6 fade-in">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Total Spent</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900" id="totalSpent">₹0</p>
+          </div>
+          <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+            <i class="fas fa-rupee-sign text-green-600"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-xl shadow-md p-6 fade-in">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Active Subscriptions</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900" id="activeSubscriptions">0</p>
+          </div>
+          <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+            <i class="fas fa-calendar-check text-purple-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Purchase Table -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden fade-in">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Recent Purchases</h3>
+        <div class="relative">
+          <button id="refreshButton" class="text-primary-600 hover:text-primary-800 transition-colors duration-200">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="purchaseTableBody" class="bg-white divide-y divide-gray-200">
+            <!-- Loading state -->
+            <tr id="loadingRow">
+              <td colspan="8" class="px-6 py-4 text-center">
+                <div class="flex justify-center items-center gap-3">
+                  <i class="fas fa-circle-notch rotate text-primary-600"></i>
+                  <span class="text-gray-600">Loading purchases...</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="text-sm text-gray-500">
+          Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalItems">0</span> results
+        </div>
+        <div class="flex space-x-2">
+          <button id="prevPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            Previous
+          </button>
+          <button id="nextPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMsg" class="mt-6 hidden">
+      <div class="bg-red-50 border-l-4 border-red-500 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-circle h-5 w-5 text-red-500"></i>
+          </div>
+          <div class="ml-3">
+            <p id="errorText" class="text-sm text-red-700"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get user data from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+      if (!user || user.role !== 'user') {
+                alert("session expired");
+                window.location.href = '../index.html';
+                return;
+            }
+  });
+</script>
+  <script>
+
+    // ======================
+// SECURITY: BLOCK DEVELOPER TOOLS
+// ======================
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    showAdminBlock();
+    return false;
+});
+
+document.addEventListener('keydown', function(e) {
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+    if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C')
+    ) {
+        e.preventDefault();
+        showAdminBlock();
+        return false;
+    }
+});
+
+// Function to show admin block message
+function showAdminBlock() {
+    const adminBlock = document.getElementById('adminBlock');
+    adminBlock.style.display = 'flex';
+    setTimeout(() => {
+        adminBlock.style.display = 'none';
+    }, 3000);
+}
+    function goBack() {
+      window.history.back();
+    }
+
+    function getLoggedInUserInfo() {
+      const userString = localStorage.getItem('user');
+      let userId = 'N/A';
+      let userName = 'Guest';
+      let userEmail = '';
+      let userInitial = 'G';
+
+      if (userString) {
+        try {
+          const userData = JSON.parse(userString);
+          userId = userData._id || userData.id || userData.userId || userData.userID || 'N/A';
+          userName = userData.username || userData.fullName || userData.name || 'Unknown User';
+          userEmail = userData.email || '';
+          userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+          userId = 'Error';
+          userName = 'Error User';
+          userEmail = 'error@example.com';
+          userInitial = 'E';
+        }
+      }
+
+      return {
+        id: userId,
+        name: userName,
+        email: userEmail,
+        initial: userInitial
+      };
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Date(dateString).toLocaleDateString('en-IN', options);
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+      status = status.toLowerCase();
+      if (status === 'completed' || status === 'success') {
+        return '<span class="px-2 py-1 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Success</span>';
+      } else if (status === 'pending') {
+        return '<span class="px-2 py-1 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full">Pending</span>';
+      } else if (status === 'failed') {
+        return '<span class="px-2 py-1 text-xs font-semibold leading-5 text-red-800 bg-red-100 rounded-full">Failed</span>';
+      } else {
+        return `<span class="px-2 py-1 text-xs font-semibold leading-5 text-gray-800 bg-gray-100 rounded-full">${status}</span>`;
+      }
+    }
+
+    // Update user info
+    const userInfo = getLoggedInUserInfo();
+    document.getElementById("userId").textContent = userInfo.id;
+    document.getElementById("userName").textContent = userInfo.name;
+    document.getElementById("userEmail").textContent = userInfo.email;
+    document.getElementById("userInitial").textContent = userInfo.initial;
+
+    // Pagination variables
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allPurchases = [];
+
+    async function loadPurchases() {
+      const userId = userInfo.id;
+      const tableBody = document.getElementById("purchaseTableBody");
+      const errorMsg = document.getElementById("errorMsg");
+      const loadingRow = document.getElementById("loadingRow");
+      
+      // Show loading state
+      tableBody.innerHTML = '';
+      tableBody.appendChild(loadingRow);
+      loadingRow.classList.remove('hidden');
+      errorMsg.classList.add('hidden');
+
+      if (!userId || userId === 'N/A' || userId === 'Error') {
+        errorMsg.classList.remove('hidden');
+        document.getElementById("errorText").textContent = "Invalid or missing user ID. Please login again.";
+        loadingRow.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://gameappbackend-i8zv.onrender.com/api/purchases/user/${userId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch purchases');
+        }
+
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                <div class="flex flex-col items-center justify-center gap-2">
+                  <i class="fas fa-shopping-cart text-4xl text-gray-300"></i>
+                  <p class="text-lg font-medium">No purchases found</p>
+                  <p class="text-sm">You haven't made any purchases yet.</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          loadingRow.classList.add('hidden');
+          return;
+        }
+
+        // Store all purchases and render first page
+        allPurchases = data;
+        updateStats(data);
+        renderTable(currentPage);
+
+      } catch (err) {
+        console.error("Fetch error:", err);
+        errorMsg.classList.remove('hidden');
+        document.getElementById("errorText").textContent = err.message || "Error loading purchases. Please try again later.";
+        loadingRow.classList.add('hidden');
+      }
+    }
+
+    function updateStats(purchases) {
+      // Total purchases
+      document.getElementById("totalPurchases").textContent = purchases.length;
+      
+      // Total spent
+      const totalAmount = purchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
+      document.getElementById("totalSpent").textContent = formatCurrency(totalAmount);
+      
+      // Active subscriptions (assuming status 'completed' is active)
+      const activeSubs = purchases.filter(p => p.status && p.status.toLowerCase() === 'completed').length;
+      document.getElementById("activeSubscriptions").textContent = activeSubs;
+    }
+
+    function renderTable(page) {
+      const tableBody = document.getElementById("purchaseTableBody");
+      const loadingRow = document.getElementById("loadingRow");
+      const startIdx = (page - 1) * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const pagePurchases = allPurchases.slice(startIdx, endIdx);
+      
+      tableBody.innerHTML = '';
+      
+      if (pagePurchases.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+              No purchases found for this page.
+            </td>
+          </tr>
+        `;
+      } else {
+        pagePurchases.forEach(purchase => {
+          const row = document.createElement("tr");
+          row.className = "hover:bg-gray-50 transition-colors duration-150";
+          row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                  <i class="fas ${purchase.product ? 'fa-box' : 'fa-question'} text-primary-600"></i>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">${purchase.product || 'Unknown Product'}</div>
+                  <div class="text-sm text-gray-500">Order: ${purchase.orderId || '-'}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${purchase.mcqTypeName || '-'}</div>
+              <div class="text-sm text-gray-500">ID: ${purchase.mcqTypeId || '-'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${purchase.paymentId || '-'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              ${formatCurrency(purchase.amount || 0)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${purchase.remainingBalance !== undefined ? formatCurrency(purchase.remainingBalance) : '-'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              ${getStatusBadge(purchase.status)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              ${formatDate(purchase.createdAt)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button class="text-primary-600 hover:text-primary-900 mr-3">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-download"></i>
+              </button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+      
+      // Update pagination info
+      document.getElementById("showingFrom").textContent = startIdx + 1;
+      document.getElementById("showingTo").textContent = Math.min(endIdx, allPurchases.length);
+      document.getElementById("totalItems").textContent = allPurchases.length;
+      
+      // Update pagination buttons
+      document.getElementById("prevPage").disabled = page === 1;
+      document.getElementById("nextPage").disabled = endIdx >= allPurchases.length;
+      
+      loadingRow.classList.add('hidden');
+    }
+
+    // Event listeners
+    document.getElementById("refreshButton").addEventListener('click', () => {
+      currentPage = 1;
+      loadPurchases();
+    });
+
+    document.getElementById("prevPage").addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable(currentPage);
+      }
+    });
+
+    document.getElementById("nextPage").addEventListener('click', () => {
+      if ((currentPage * itemsPerPage) < allPurchases.length) {
+        currentPage++;
+        renderTable(currentPage);
+      }
+    });
+
+    // Load data on page load
+    window.onload = loadPurchases;
+  </script>
+</body>
+</html>

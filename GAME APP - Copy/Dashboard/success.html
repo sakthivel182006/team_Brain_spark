@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payment Successful</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .success-icon {
+      color: #4CAF50;
+      font-size: 48px;
+    }
+    .details-box {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .detail-row {
+      margin-bottom: 10px;
+    }
+    .detail-label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="success-icon">✅</div>
+  <h1>Payment Successful!</h1>
+  <p>Thank you for your payment. Here are your transaction details:</p>
+
+  <div class="details-box" id="paymentDetails">
+    <!-- Details will be loaded via JavaScript -->
+    <p>Loading payment details...</p>
+  </div>
+
+  <script>
+    // Extract payment details from URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('order_id');
+    const paymentId = urlParams.get('payment_id');
+    const amount = urlParams.get('amount');
+
+    if (orderId && paymentId && amount) {
+      document.getElementById('paymentDetails').innerHTML = `
+        <div class="detail-row">
+          <span class="detail-label">Order ID:</span> ${orderId}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Payment ID:</span> ${paymentId}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount:</span> ₹${(amount / 100).toFixed(2)}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span> Completed
+        </div>
+      `;
+    } else {
+      document.getElementById('paymentDetails').innerHTML = 
+        '<p>Payment details not available. Please check your email for confirmation.</p>';
+    }
+  </script>
+</body>
+</html>

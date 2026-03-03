@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Topics | LearnHub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --success: #4cc9f0;
+      --warning: #ffd166;
+      --danger: #ef476f;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .logo i {
+      margin-right: 10px;
+      color: var(--accent);
+    }
+    
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background: var(--light);
+      color: var(--dark);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .back-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .back-btn i {
+      margin-right: 8px;
+    }
+    
+    .page-title {
+      text-align: center;
+      margin: 30px 0;
+      color: var(--dark);
+      font-size: 2.5rem;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .page-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    .course-header {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 30px;
+    }
+    
+    .course-hero {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .course-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .course-hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      padding: 20px;
+      color: white;
+    }
+    
+    .course-title {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    
+    .course-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    
+    .meta-item i {
+      margin-right: 5px;
+    }
+    
+    .course-details {
+      padding: 25px;
+    }
+    
+    .course-description {
+      margin-bottom: 20px;
+      color: var(--gray);
+      line-height: 1.8;
+    }
+    
+    .course-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+    
+    .progress-container {
+      background: var(--light-gray);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: var(--success);
+      width: 30%;
+      border-radius: 4px;
+    }
+    
+    .topics-container {
+      margin-bottom: 40px;
+    }
+    
+    .section-title {
+      font-size: 22px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--light-gray);
+      display: flex;
+      align-items: center;
+    }
+    
+    .section-title i {
+      margin-right: 10px;
+      color: var(--primary);
+    }
+    
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .topic-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .topic-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .topic-content {
+      padding: 20px;
+    }
+    
+    .topic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+    
+    .topic-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    
+    .topic-order {
+      background: var(--primary);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .topic-description {
+      color: var(--gray);
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .topic-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray);
+      font-size: 13px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .topic-action {
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+    
+    .btn-primary i {
+      margin-right: 8px;
+    }
+    
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .empty-state i {
+      font-size: 64px;
+      color: var(--light-gray);
+      margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+    
+    .empty-state p {
+      color: var(--gray);
+      margin-bottom: 20px;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--gray);
+      font-size: 14px;
+      border-top: 1px solid var(--light-gray);
+      margin-top: 40px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .course-meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .topics-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .course-hero {
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        <span>LearnHub</span>
+      </div>
+      <a href="courses.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Courses
+      </a>
+    </header>
+    
+    <h1 class="page-title">Course Topics</h1>
+    
+    <div id="courseWrapper"></div>
+    
+    <div class="topics-container">
+      <h2 class="section-title">
+        <i class="fas fa-list-ul"></i>
+        Course Content
+      </h2>
+      <div id="topicsContainer"></div>
+    </div>
+    
+    <div class="footer">
+      <p>© 2023 LearnHub. All rights reserved.</p>
+    </div>
+  </div>
+
+  
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const profilePicture = document.getElementById('userImage');
+            const profileName = document.getElementById('profile-name');
+            const profileEmail = document.getElementById('profile-email');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+
+            // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            // Check if user is logged in
+            if (!user || isLoggedIn !== 'true') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // Set profile data
+            if (profilePicture) profilePicture.src = user.profilePicture || 'https://flowbite.com/docs/images/people/profile-picture-5.jpg';
+            if (profileName) profileName.textContent = user.name || user.username || 'User';
+            if (profileEmail) profileEmail.textContent = user.email || 'user@example.com';
+
+            // Logout function
+            const handleLogout = (e) => {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = '../index.html';
+            };
+
+            // Add event listeners
+            if (signOutBtn) signOutBtn.addEventListener('click', handleLogout);
+            if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', handleLogout);
+        });
+    </script>
+  <script>
+    const BASE_API = "https://gameappbackend-i8zv.onrender.com/api";
+    
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+    
+    function formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+    
+    function showError(message) {
+      const courseWrapper = document.getElementById('courseWrapper');
+      courseWrapper.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-circle"></i>
+          <h3>Error Loading Content</h3>
+          <p>${message}</p>
+          <a href="courses.html" class="btn-primary">
+            <i class="fas fa-arrow-left"></i>
+            Back to Courses
+          </a>
+        </div>
+      `;
+    }
+    
+    async function init() {
+      const courseId = getQueryParam('courseId') || '';
+      const courseWrapper = document.getElementById('courseWrapper');
+      const topicsContainer = document.getElementById('topicsContainer');
+      
+      if (!courseId) {
+        showError('Missing course ID. Please return to the courses page and select a course.');
+        return;
+      }
+      
+      try {
+        const [courseRes, topicsRes] = await Promise.all([
+          fetch(`${BASE_API}/courses/${courseId}`),
+          fetch(`${BASE_API}/coursesTopics/course/${courseId}`)
+        ]);
+        
+        if (!courseRes.ok) {
+          showError('Course not found. It may have been removed or you may not have access.');
+          return;
+        }
+        
+        const course = await courseRes.json();
+        const topics = topicsRes.ok ? await topicsRes.json() : [];
+        
+        // Render course header
+        const now = new Date();
+        const endDate = new Date(course.endDate);
+        const startDate = new Date(course.startDate);
+        const isActive = now < endDate;
+        
+        courseWrapper.innerHTML = `
+          <div class="course-header">
+            <div class="course-hero">
+              <img src="${course.imageUrl || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1200&q=80'}" alt="${course.title}">
+              <div class="course-hero-overlay">
+                <h2 class="course-title">${course.title || 'Untitled Course'}</h2>
+                <div class="course-meta">
+                  <div class="meta-item">
+                    <i class="fas fa-user"></i>
+                    <span>${course.instructor || 'N/A'}</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span>${course.category || 'N/A'}</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-signal"></i>
+                    <span>${course.level || 'N/A'}</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>${course.duration || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="course-details">
+              <p class="course-description">${course.description || 'No description available.'}</p>
+              <div class="course-meta">
+                <div class="meta-item" style="background: #eef8ff; color: #4361ee;">
+                  <i class="fas fa-calendar"></i>
+                  <span>Starts: ${formatDate(course.startDate)}</span>
+                </div>
+                <div class="meta-item" style="background: ${isActive ? '#e6f7ee' : '#ffe6e6'}; color: ${isActive ? '#0b9560' : '#d90b0b'};">
+                  <i class="fas ${isActive ? 'fa-unlock' : 'fa-lock'}"></i>
+                  <span>Ends: ${formatDate(course.endDate)}</span>
+                </div>
+                <div class="course-price">₹${course.price || 0}</div>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar"></div>
+              </div>
+              <p>Your progress: <strong>30% completed</strong></p>
+            </div>
+          </div>
+        `;
+        
+        // Render topics
+        if (!topics || topics.length === 0) {
+          topicsContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-book-open"></i>
+              <h3>No Topics Available</h3>
+              <p>This course doesn't have any topics yet. Please check back later.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        const topicsGrid = document.createElement('div');
+        topicsGrid.className = 'topics-grid';
+        
+        topics.forEach(topic => {
+          const topicCard = document.createElement('div');
+          topicCard.className = 'topic-card';
+          
+          topicCard.innerHTML = `
+            <div class="topic-content">
+              <div class="topic-header">
+                <h3 class="topic-title">${topic.topicName || topic.title || 'Untitled Topic'}</h3>
+                <div class="topic-order">${topic.order || 'N/A'}</div>
+              </div>
+              <p class="topic-description">${topic.content || topic.description || 'No description available.'}</p>
+              <div class="topic-meta">
+                <div>
+                  <i class="far fa-clock"></i>
+                  Added: ${topic.createdAt ? formatDate(topic.createdAt) : 'N/A'}
+                </div>
+                <div>
+                  ${topic.videoUrl ? '<i class="fas fa-video"></i> Has Video' : ''}
+                </div>
+              </div>
+              <div class="topic-action">
+                ${topic.videoUrl ? `
+                  <a href="${topic.videoUrl}" class="btn-primary" target="_blank" rel="noopener">
+                    <i class="fas fa-play-circle"></i>
+                    Watch Video
+                  </a>
+                ` : `
+                  <button class="btn-primary">
+                    <i class="fas fa-book-open"></i>
+                    Study Material
+                  </button>
+                `}
+              </div>
+            </div>
+          `;
+          
+          topicsGrid.appendChild(topicCard);
+        });
+        
+        topicsContainer.innerHTML = '';
+        topicsContainer.appendChild(topicsGrid);
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        showError('Failed to load course data. Please check your connection and try again.');
+      }
+    }
+    
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316', /* Main Orange */
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        secondary: { 
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                        },
+                        success: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efad',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        danger: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                        },
+                        yellow: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                        'glow': '0 0 15px rgba(234, 179, 8, 0.3)',
+                        'card-hover': '0 15px 30px rgba(0,0,0,0.15)'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 },
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: 0.7, transform: 'scale(0.98)' },
+                        },
+                        flash: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.5 },
+                        },
+                        shine: {
+                            '0%': { backgroundPosition: '200% 0' },
+                            '100%': { backgroundPosition: '-200% 0' }
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s infinite ease-in-out',
+                        'flash-subtle': 'flash 1.5s infinite',
+                        'shine-effect': 'shine 1.5s linear infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f8fafc;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, theme('colors.yellow.500') 0%, theme('colors.primary.500') 100%);
+        }
+        
+        /* Custom styles for select arrows */
+        select.custom-select-arrow {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.4%20292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287,197.8l-1.4-1.4l-140.2-140.2L4.6,196.4l-1.4,1.4L0,193.2L144.8,48.4L292.4,193.2L287,197.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.6em;
+            padding-right: 2.5rem;
+        }
+
+        /* Shine effect for active buttons */
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+            background-color: theme('colors.primary.600');
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 30%,
+                rgba(255, 255, 255, 0.4) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 200% 100%;
+            transition: background-position 0.4s ease-in-out;
+        }
+        .btn-shine:hover {
+            background-position: -100% 0;
+        }
+
+        /* Specific card border based on status */
+        .mcq-card.active { border-left: 4px solid theme('colors.success.500'); }
+        .mcq-card.upcoming { border-left: 4px solid theme('colors.primary.500'); }
+        .mcq-card.closed { border-left: 4px solid theme('colors.gray.400'); }
+
+        /* Skeleton loader animation */
+        .animate-pulse-bg {
+            background: linear-gradient(-90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
+            background-size: 400% 400%;
+            animation: pulse-bg 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background: theme('colors.yellow.500');
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* User card styling */
+        .user-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .user-card:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Card styling */
+        .mcq-card {
+            border: 1px solid theme('colors.gray.200');
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .mcq-card:hover {
+            transform: translateY(-5px);
+            box-shadow: theme('boxShadow.card-hover');
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <header class="navbar text-gray-900 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="../Home.html" class="flex items-center text-gray-900 hover:text-primary-700 transition-colors duration-200 group">
+                    <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                    <span class="hidden sm:inline font-medium">Back to Home</span>
+                </a>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight">MCQ Dashboard</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="user-card px-4 py-2 flex items-center space-x-3 rounded-full shadow-md">
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-yellow-600 font-bold text-lg shadow-inner">
+                            <span id="userInitial">U</span>
+                        </div>
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse-slow"></span>
+                    </div>
+                    <div class="hidden md:block">
+                        <p id="username" class="font-medium text-sm text-gray-900">Loading...</p>
+                        <p id="userEmail" class="text-xs text-gray-700 opacity-90 truncate" style="max-width: 150px;">user@example.com</p>
+                    </div>
+                </div>
+                
+                <a href="../Dashboard/dashboard.html" class="flex items-center bg-white text-yellow-700 px-4 py-2 rounded-full font-semibold hover:bg-yellow-100 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i class="fas fa-chart-line mr-2 text-lg"></i>
+                    <span class="hidden lg:inline">EXAM RESULTS</span>
+                    <span class="lg:hidden">Results</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div id="messageBox" class="hidden container mx-auto px-4 py-2 mt-4 z-40">
+        </div>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <aside class="lg:col-span-1 space-y-6">
+                <div class="hidden lg:block bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="relative">
+                            <div class="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold text-3xl shadow-inner">
+                                <span id="userInitialDesktop">U</span>
+                            </div>
+                            <span class="absolute bottom-1 right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse-slow"></span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">User ID:</p>
+                            <p id="userIdDesktop" class="font-medium text-gray-800 text-lg break-words">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div>
+                            <p class="text-sm text-gray-500">Username:</p>
+                            <p id="usernameDesktop" class="font-semibold text-gray-900 text-xl">Loading...</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Email:</p>
+                            <p id="userEmailDesktop" class="text-sm text-gray-700 break-words">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-5 flex items-center">
+                        <i class="fas fa-filter mr-3 text-yellow-500 text-xl"></i>
+                        Filter & Sort Quizzes
+                    </h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label for="dateFilter" class="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
+                            <div class="relative">
+                                <select id="dateFilter" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2.5 px-4 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500 transition-colors custom-select-arrow">
+                                    <option value="all">All Dates</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="sortBy" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                            <div class="relative">
+                                <select id="sortBy" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2.5 px-4 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500 transition-colors custom-select-arrow">
+                                    <option value="start">Start Date (Asc)</option>
+                                    <option value="due">Due Date (Asc)</option>
+                                    <option value="name">Name (A-Z)</option>
+                                    <option value="fee">Entry Fee (Low-High)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filterSelect" class="block text-sm font-medium text-gray-700 mb-2">Quiz Status</label>
+                            <div class="relative">
+                                <select id="filterSelect" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2.5 px-4 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500 transition-colors custom-select-arrow">
+                                    <option value="all">All Quizzes</option>
+                                    <option value="active">Active Now</option>
+                                    <option value="upcoming">Upcoming</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="applyFilters" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-3 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center btn-shine">
+                            <i class="fas fa-sliders-h mr-3"></i>
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-5 flex items-center">
+                        <i class="fas fa-chart-pie mr-3 text-primary-500 text-xl"></i>
+                        Quick Stats
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-gray-700">
+                            <span class="text-base">Total Quizzes</span>
+                            <span id="totalQuizzes" class="font-bold text-lg bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-700">
+                            <span class="text-base">Active Now</span>
+                            <span id="activeQuizzes" class="font-bold text-lg bg-success-100 text-success-800 px-3 py-1 rounded-md">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-700">
+                            <span class="text-base">Upcoming</span>
+                            <span id="upcomingQuizzes" class="font-bold text-lg bg-blue-100 text-blue-800 px-3 py-1 rounded-md">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-700">
+                            <span class="text-base">Total Spent</span>
+                            <span id="totalSpent" class="font-bold text-lg bg-primary-100 text-primary-800 px-3 py-1 rounded-md">₹0</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                    <div class="p-6 bg-gradient-to-r from-yellow-50 to-primary-50 border-b border-gray-200">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800 mb-1">Available MCQ Quizzes</h2>
+                                <p class="text-gray-600 text-lg">Test your knowledge and win exciting rewards!</p>
+                            </div>
+                            <div class="mt-4 md:mt-0 flex items-center space-x-3">
+                                <div class="relative flex-grow">
+                                    <input type="text" id="searchQuizzes" placeholder="Search quizzes..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500 transition-colors text-gray-700">
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                                <button id="refreshQuizzes" class="p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors border border-gray-200">
+                                    <i class="fas fa-sync-alt text-gray-600 text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mcqContainer" class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                        <div class="bg-gray-100 rounded-xl p-6 h-64 animate-pulse-bg shadow-sm"></div>
+                        <div class="bg-gray-100 rounded-xl p-6 h-64 animate-pulse-bg shadow-sm"></div>
+                        <div class="bg-gray-100 rounded-xl p-6 h-64 animate-pulse-bg shadow-sm hidden md:block"></div>
+                        <div class="bg-gray-100 rounded-xl p-6 h-64 animate-pulse-bg shadow-sm hidden xl:block"></div>
+                    </div>
+                    
+                    <div id="noQuizzesMessage" class="hidden text-center py-20 px-6">
+                        <svg class="mx-auto h-20 w-20 text-gray-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="mt-4 text-3xl font-bold text-gray-800">No Quizzes Found!</h3>
+                        <p class="mt-2 text-xl text-gray-600 max-w-lg mx-auto">
+                            It looks like there are no quizzes matching your current filters. Try adjusting your criteria or check back later!
+                        </p>
+                    </div>
+
+                    <div class="hidden px-6 py-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Showing <span class="font-semibold">1</span> to <span class="font-semibold">10</span> of <span class="font-semibold">20</span> quizzes
+                                </p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                    Previous
+                                </button>
+                                <button class="px-4 py-2 border border-yellow-500 rounded-md text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 transition-colors">
+                                    1
+                                </button>
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                    2
+                                </button>
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        const API_BASE = 'https://gameappbackend-i8zv.onrender.com'; // Ensure this matches your backend API URL
+
+
+
+      
+        // --- Helper Functions ---
+
+        /**
+         * Displays a message box at the top of the page.
+         * @param {string} msg The message content.
+         * @param {'success'|'error'|'warning'|'info'} type The type of message to display.
+         */
+        function showMessage(msg, type = 'error') {
+            const box = document.getElementById('messageBox');
+            let iconClass = '';
+            let bgClass = '';
+            let borderClass = '';
+            let textClass = '';
+
+            switch (type) {
+                case 'success':
+                    iconClass = 'fas fa-check-circle';
+                    bgClass = 'bg-success-100';
+                    borderClass = 'border-success-500';
+                    textClass = 'text-success-700';
+                    break;
+                case 'warning':
+                    iconClass = 'fas fa-exclamation-triangle';
+                    bgClass = 'bg-yellow-100';
+                    borderClass = 'border-yellow-500';
+                    textClass = 'text-yellow-700';
+                    break;
+                case 'info':
+                    iconClass = 'fas fa-info-circle';
+                    bgClass = 'bg-blue-100';
+                    borderClass = 'border-blue-500';
+                    textClass = 'text-blue-700';
+                    break;
+                case 'error':
+                default:
+                    iconClass = 'fas fa-times-circle';
+                    bgClass = 'bg-danger-100';
+                    borderClass = 'border-danger-500';
+                    textClass = 'text-danger-700';
+                    break;
+            }
+
+            box.innerHTML = `
+                <div class="${bgClass} border-l-4 ${borderClass} ${textClass} p-4 rounded-lg shadow-md animate-fade-in" role="alert">
+                    <div class="flex items-center">
+                        <i class="${iconClass} mr-3 text-xl"></i>
+                        <p class="font-semibold text-lg">${msg}</p>
+                    </div>
+                </div>
+            `;
+            box.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Hide message after 7 seconds
+            setTimeout(() => {
+                box.classList.add('hidden');
+            }, 7000);
+        }
+
+        /**
+         * Retrieves logged-in user information from localStorage.
+         * @returns {object} User ID, name, email, and initial.
+         */
+        function getLoggedInUserInfo() {
+            const s = localStorage.getItem('user');
+            let id = 'N/A', name = 'Guest', email = '', initial = 'G';
+            if (s) {
+                try {
+                    const u = JSON.parse(s);
+                       // 🔒 Check login and role
+            if (!u || u.role !== 'user') {
+                alert("session expired");
+                window.location.href = 'index.html';
+                return;
+            }
+                    id = u._id || u.id || 'N/A'; // Prioritize _id if available (MongoDB default)
+                    name = u.username || u.fullName || u.name || 'Unknown';
+                    email = u.email || '';
+                    initial = name.charAt(0).toUpperCase() || 'U';
+                } catch (e) {
+                    console.error("Error parsing user from localStorage:", e);
+                    id = 'Error'; name = 'Error'; initial = 'E';
+                }
+            }
+            return { id, name, email, initial };
+        }
+
+        /**
+         * Gets the current time in IST (UTC+5:30).
+         * @returns {Date} Current Date object in IST.
+         */
+        function nowInIST() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const offset = 5.5 * 60 * 60000; // IST = UTC+5:30
+            return new Date(utc + offset);
+        }
+        // ======================
+// SECURITY: BLOCK DEVELOPER TOOLS
+// ======================
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    showAdminBlock();
+    return false;
+});
+
+document.addEventListener('keydown', function(e) {
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+    if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C')
+    ) {
+        e.preventDefault();
+        showAdminBlock();
+        return false;
+    }
+});
+
+// Function to show admin block message
+function showAdminBlock() {
+    const adminBlock = document.getElementById('adminBlock');
+    adminBlock.style.display = 'flex';
+    setTimeout(() => {
+        adminBlock.style.display = 'none';
+    }, 3000);
+}
+
+        /**
+         * Formats the time difference until a target date.
+         * @param {Date} targetDate The date to calculate difference from.
+         * @returns {string} Formatted time difference (e.g., "5d 3h left", "Closed").
+         */
+        function formatTimeDifference(targetDate) {
+            const now = nowInIST();
+            const diffMs = targetDate - now;
+
+            if (diffMs <= 0) return 'Closed';
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const days = Math.floor(totalSeconds / (3600 * 24));
+            const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+            let parts = [];
+            if (days > 0) parts.push(`${days}d`);
+            if (hours > 0) parts.push(`${hours}h`);
+            if (minutes > 0 && days === 0) parts.push(`${minutes}m`); // Show minutes only if less than a day
+
+            return parts.length > 0 ? `${parts.join(' ')} left` : 'Starting soon...';
+        }
+
+        /**
+         * Determines the status of an MCQ quiz (active, upcoming, closed).
+         * @param {object} mcq The MCQ object.
+         * @returns {'active'|'upcoming'|'closed'} The status of the quiz.
+         */
+        function getMcqStatus(mcq) {
+            const now = nowInIST();
+            const startTime = new Date(mcq.startTimeBeforeStart);
+            const dueTime = new Date(mcq.dueTimeBeforeStart);
+
+            if (now >= startTime && now <= dueTime) return 'active';
+            if (now < startTime) return 'upcoming';
+            return 'closed';
+        }
+
+        // --- API Interaction ---
+
+        /**
+         * Fetches MCQ types from the backend, including user-specific payment status.
+         * @returns {Promise<Array>} Array of MCQ objects.
+         */
+        async function fetchMcqs() {
+            try {
+                const user = getLoggedInUserInfo();
+                // Crucial: Pass userId to the backend so it can determine if the user has paid for each MCQ
+                const resp = await fetch(`${API_BASE}/api/mcqtypes?userId=${user.id}`); 
+                if (!resp.ok) {
+                    throw new Error(`HTTP error! status: ${resp.status}`);
+                }
+                const data = await resp.json();
+                return data; 
+            } catch (error) {
+                console.error("Failed to fetch MCQ types:", error);
+                showMessage("Failed to load quizzes. Please try again later.", 'error');
+                return [];
+            }
+        }
+
+        /**
+         * Handles the purchase and start logic for an MCQ quiz.
+         * @param {object} mcqType The MCQ object to purchase/start.
+         */
+        async function purchaseAndStart(mcqType) {
+            try {
+                const user = getLoggedInUserInfo();
+                if (!user || user.id === 'N/A' || user.id === 'Error') {
+                    return showMessage('Please login to participate in quizzes.', 'error');
+                }
+
+                const now = nowInIST();
+                const startTime = new Date(mcqType.startTimeBeforeStart);
+                const dueTime = new Date(mcqType.dueTimeBeforeStart);
+
+                // 1. Check if quiz is closed
+                if (now >= dueTime) {
+                    return showMessage('Quiz time is over. You cannot participate now.', 'warning');
+                }
+
+                // 2. Check if already paid
+                if (mcqType.paid) { 
+                    if (now >= startTime) {
+                        // Already paid and quiz has started, redirect
+                        sessionStorage.setItem('userId', encodeURIComponent(user.id));
+                        sessionStorage.setItem('mcqTypeId', encodeURIComponent(mcqType._id));
+                        showMessage("Validation verified. Redirecting to quiz...", 'success');
+                        setTimeout(() => {
+                            window.location = `allmcqshowinone.html`;
+                        }, 1500);
+                    } else {
+                        // Already paid but quiz hasn't started
+                        showMessage('You have already paid for this quiz. Please wait until it starts.', 'info');
+                    }
+                    return; // Exit after handling paid status
+                }
+
+                // 3. If not paid and quiz is upcoming, confirm payment
+                if (now < startTime && mcqType.entryFee > 0) {
+                    const confirmPay = confirm(`This quiz starts on ${startTime.toLocaleString()}. Do you want to pay ₹${mcqType.entryFee} now to reserve your spot?`);
+                    if (!confirmPay) {
+                        return; // User cancelled
+                    }
+                } else if (mcqType.entryFee === 0 && now < startTime) {
+                    // Free upcoming quiz - no explicit payment needed, but flow might differ if you track "registrations"
+                    // For now, treat free upcoming as immediate access if it's active.
+                    // If you want free quizzes to still be "upcoming" until start, then just let the next steps handle it.
+                }
+
+                // Proceed with payment if needed
+                if (mcqType.entryFee > 0) {
+                    const paymentId = 'PAY-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                    const orderId = 'ORD-' + Date.now();
+
+                    const payload = {
+                        userId: user.id,
+                        mcqTypeId: mcqType._id,
+                        mcqTypeName: mcqType.name,
+                        amount: mcqType.entryFee,
+                        paymentId: paymentId,
+                        orderId: orderId
+                    };
+
+                    const resp = await fetch(`${API_BASE}/api/purchase`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        if (data.message && data.message.includes('You have already paid')) {
+                            // This case should ideally be caught by the `mcqType.paid` check above,
+                            // but as a fallback, handle it.
+                            if (now >= startTime) {
+                                sessionStorage.setItem('userId', encodeURIComponent(user.id));
+                                sessionStorage.setItem('mcqTypeId', encodeURIComponent(mcqType._id));
+                                showMessage("Validation verified. Redirecting to quiz...", 'success');
+                                setTimeout(() => {
+                                    window.location = `allmcqshowinone.html`;
+                                }, 1500);
+                            } else {
+                                showMessage("You already paid. Please wait for quiz start.", 'info');
+                            }
+                        } else if (data.message && (data.message.includes("account balance is zero") || data.message.includes("Insufficient"))) {
+                            showMessage('Purchase failed. Insufficient balance. Redirecting to deposit page...', 'error');
+                            setTimeout(() => {
+                                window.location.href = "../Dashboard/payments.html";
+                            }, 2000);
+                        } else {
+                            showMessage(`Failed to complete purchase: ${data.message || 'Unknown error'}`, 'error');
+                        }
+                        return;
+                    }
+
+                    // Payment successful for paid quizzes
+                    showMessage("Payment successful!", 'success');
+                    // Mark as paid in the local data (temporarily, until re-fetch)
+                    mcqType.paid = true; 
+                }
+
+                // If quiz is active now (either free or just paid)
+                if (now >= startTime) {
+                    sessionStorage.setItem('userId', encodeURIComponent(user.id));
+                    sessionStorage.setItem('mcqTypeId', encodeURIComponent(mcqType._id));
+                    showMessage(`Starting quiz: ${mcqType.name}`, 'success');
+                    setTimeout(() => {
+                        window.location = `allmcqshowinone.html`;
+                    }, 1500);
+                } else {
+                    // If free and upcoming, or just paid for upcoming
+                    showMessage(`You are ready! Quiz "${mcqType.name}" will start on ${startTime.toLocaleString()}.`, 'info');
+                    initPage(); // Re-render to update button state
+                }
+
+            } catch (error) {
+                console.error('Error in purchaseAndStart:', error);
+                showMessage('An unexpected error occurred. Please try again.', 'error');
+            }
+        }
+
+        // --- UI Rendering ---
+
+        /**
+         * Creates an HTML card element for an MCQ quiz.
+         * @param {object} m The MCQ object.
+         * @returns {HTMLElement} The created card element.
+         */
+        function createMcqCard(m) {
+            const startTime = new Date(m.startTimeBeforeStart);
+            const dueTime = new Date(m.dueTimeBeforeStart);
+            const status = getMcqStatus(m);
+            let displayRemainingTime = '';
+            let buttonText = '';
+            let buttonClasses = 'px-5 py-2.5 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 ';
+            let buttonDisabled = false;
+
+            if (status === 'active') {
+                displayRemainingTime = formatTimeDifference(dueTime);
+                if (m.paid) {
+                    buttonText = 'Start Quiz';
+                    buttonClasses += 'bg-success-600 text-white hover:bg-success-700 btn-shine';
+                } else {
+                    buttonText = `Start Quiz (${m.entryFee > 0 ? '₹' + m.entryFee : 'Free'})`;
+                    buttonClasses += 'bg-yellow-500 text-white hover:bg-yellow-600 btn-shine';
+                }
+            } else if (status === 'upcoming') {
+                displayRemainingTime = formatTimeDifference(startTime);
+                if (m.paid) {
+                    buttonText = 'Paid (Starts Soon)';
+                    buttonClasses += 'bg-success-300 text-success-800 cursor-not-allowed';
+                    buttonDisabled = true;
+                } else {
+                    buttonText = `Pay to Join (${m.entryFee > 0 ? '₹' + m.entryFee : 'Free'})`;
+                    buttonClasses += 'bg-yellow-500 text-white hover:bg-yellow-600 btn-shine';
+                }
+            } else { // Closed
+                displayRemainingTime = 'Closed';
+                buttonText = 'Quiz Closed';
+                buttonClasses += 'bg-gray-300 text-gray-600 cursor-not-allowed';
+                buttonDisabled = true;
+            }
+
+            const card = document.createElement('div');
+            card.className = `mcq-card bg-white rounded-xl shadow-md p-6 border transition-all duration-300 hover:shadow-card-hover ${status}`;
+            
+                        card.innerHTML = `
+                <div class="flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">${m.name}</h3>
+                            <p class="text-gray-600 text-sm">${m.description || 'Test your knowledge on this topic'}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${
+                                status === 'active' ? 'bg-success-100 text-success-800' : 
+                                status === 'upcoming' ? 'bg-primary-100 text-primary-800' : 
+                                'bg-gray-100 text-gray-800'
+                            }">
+                                ${status.charAt(0).toUpperCase() + status.slice(1)}
+                            </span>
+                            ${m.entryFee > 0 ? 
+                                `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold">₹${m.entryFee}</span>` : 
+                                `<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">FREE</span>`
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 mb-1">Starts</p>
+                                <p class="font-medium text-gray-800">${startTime.toLocaleString()}</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 mb-1">Ends</p>
+                                <p class="font-medium text-gray-800">${dueTime.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Time Remaining</span>
+                                <span class="text-sm font-semibold ${
+                                    status === 'active' ? 'text-success-600' : 
+                                    status === 'upcoming' ? 'text-primary-600' : 
+                                    'text-gray-500'
+                                }">${displayRemainingTime}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full ${
+                                    status === 'active' ? 'bg-success-500' : 
+                                    status === 'upcoming' ? 'bg-primary-500' : 
+                                    'bg-gray-400'
+                                }" style="width: ${
+                                    status === 'closed' ? '100%' : 
+                                    status === 'upcoming' ? '30%' : 
+                                    '70%'
+                                }"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-users text-gray-400"></i>
+                                <span class="text-sm text-gray-600">${m.participants || 0} participants</span>
+                            </div>
+                            <button 
+                                id="mcq-btn-${m._id}" 
+                                class="${buttonClasses}"
+                                ${buttonDisabled ? 'disabled' : ''}
+                            >
+                                ${buttonText}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listener to the button
+            if (!buttonDisabled) {
+                const btn = card.querySelector(`#mcq-btn-${m._id}`);
+                btn.addEventListener('click', () => purchaseAndStart(m));
+            }
+            
+            return card;
+        }
+
+        /**
+         * Updates the statistics display in the sidebar.
+         * @param {Array} mcqs Array of MCQ objects.
+         */
+        function updateStats(mcqs) {
+            const now = nowInIST();
+            let total = 0, active = 0, upcoming = 0, spent = 0;
+            
+            mcqs.forEach(m => {
+                total++;
+                const status = getMcqStatus(m);
+                if (status === 'active') active++;
+                if (status === 'upcoming') upcoming++;
+                if (m.paid) spent += m.entryFee;
+            });
+            
+            document.getElementById('totalQuizzes').textContent = total;
+            document.getElementById('activeQuizzes').textContent = active;
+            document.getElementById('upcomingQuizzes').textContent = upcoming;
+            document.getElementById('totalSpent').textContent = `₹${spent}`;
+        }
+
+        /**
+         * Filters and sorts MCQ quizzes based on user selections.
+         * @param {Array} mcqs Array of MCQ objects.
+         * @returns {Array} Filtered and sorted array.
+         */
+        function filterAndSortMcqs(mcqs) {
+            const filterValue = document.getElementById('filterSelect').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const searchQuery = document.getElementById('searchQuizzes').value.toLowerCase();
+            
+            const now = nowInIST();
+            
+            // Apply filters
+            let filtered = mcqs.filter(m => {
+                // Status filter
+                if (filterValue !== 'all') {
+                    const status = getMcqStatus(m);
+                    if (filterValue !== status) return false;
+                }
+                
+                // Date filter
+                const startTime = new Date(m.startTimeBeforeStart);
+                if (dateFilter !== 'all') {
+                    const today = new Date(now);
+                    today.setHours(0, 0, 0, 0);
+                    
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    
+                    const weekStart = new Date(today);
+                    weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of current week (Sunday)
+                    
+                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const yearStart = new Date(today.getFullYear(), 0, 1);
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            if (startTime < today || startTime >= tomorrow) return false;
+                            break;
+                        case 'week':
+                            if (startTime < weekStart || startTime >= tomorrow) return false;
+                            break;
+                        case 'month':
+                            if (startTime < monthStart || startTime >= tomorrow) return false;
+                            break;
+                        case 'year':
+                            if (startTime < yearStart || startTime >= tomorrow) return false;
+                            break;
+                    }
+                }
+                
+                // Search filter
+                if (searchQuery && !m.name.toLowerCase().includes(searchQuery)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Apply sorting
+            filtered.sort((a, b) => {
+                const aStart = new Date(a.startTimeBeforeStart);
+                const bStart = new Date(b.startTimeBeforeStart);
+                const aDue = new Date(a.dueTimeBeforeStart);
+                const bDue = new Date(b.dueTimeBeforeStart);
+                
+                switch (sortBy) {
+                    case 'start':
+                        return aStart - bStart;
+                    case 'due':
+                        return aDue - bDue;
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'fee':
+                        return a.entryFee - b.entryFee;
+                    default:
+                        return 0;
+                }
+            });
+            
+            return filtered;
+        }
+
+        /**
+         * Renders MCQ cards to the page.
+         * @param {Array} mcqs Array of MCQ objects.
+         */
+        function renderMcqs(mcqs) {
+            const container = document.getElementById('mcqContainer');
+            const noQuizzesMsg = document.getElementById('noQuizzesMessage');
+            
+            // Clear existing content
+            container.innerHTML = '';
+            
+            if (mcqs.length === 0) {
+                noQuizzesMsg.classList.remove('hidden');
+                container.classList.add('hidden');
+            } else {
+                noQuizzesMsg.classList.add('hidden');
+                container.classList.remove('hidden');
+                
+                const filteredMcqs = filterAndSortMcqs(mcqs);
+                filteredMcqs.forEach(m => {
+                    container.appendChild(createMcqCard(m));
+                });
+            }
+            
+            updateStats(mcqs);
+        }
+
+        // --- Event lers ---
+
+        /**
+         * Initializes the page by loading user info and MCQs.
+         */
+        async function initPage() {
+            // Load user info
+            const user = getLoggedInUserInfo();
+            document.getElementById('userInitial').textContent = user.initial;
+            document.getElementById('username').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userInitialDesktop').textContent = user.initial;
+            document.getElementById('userIdDesktop').textContent = user.id;
+            document.getElementById('usernameDesktop').textContent = user.name;
+            document.getElementById('userEmailDesktop').textContent = user.email;
+            
+            // Load MCQs
+            const mcqs = await fetchMcqs();
+            renderMcqs(mcqs);
+            
+            // Set up event listeners
+            document.getElementById('applyFilters').addEventListener('click', () => renderMcqs(mcqs));
+            document.getElementById('refreshQuizzes').addEventListener('click', async () => {
+                document.getElementById('refreshQuizzes').classList.add('animate-spin');
+                const freshMcqs = await fetchMcqs();
+                renderMcqs(freshMcqs);
+                setTimeout(() => {
+                    document.getElementById('refreshQuizzes').classList.remove('animate-spin');
+                }, 500);
+            });
+            
+            // Search as you type with debounce
+            let searchTimeout;
+            document.getElementById('searchQuizzes').addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => renderMcqs(mcqs), 300);
+            });
+        }
+
+        // Initialize the page when loaded
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

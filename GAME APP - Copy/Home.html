@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+        }
+        
+        .admin-block {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .admin-block i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #e74c3c;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(251, 191, 36, 0.3), 0 10px 10px -5px rgba(251, 191, 36, 0.2);
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Mobile menu toggle animation */
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .text-4xl {
+                font-size: 1.875rem !important;
+                line-height: 2.25rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.5rem !important;
+                line-height: 2rem !important;
+            }
+            
+            .text-xl {
+                font-size: 1.25rem !important;
+                line-height: 1.75rem !important;
+            }
+            
+            .text-lg {
+                font-size: 1.125rem !important;
+                line-height: 1.75rem !important;
+            }
+            
+            .h-32 {
+                height: 8rem !important;
+            }
+            
+            .h-48 {
+                height: 12rem !important;
+            }
+            
+            .p-6 {
+                padding: 1rem !important;
+            }
+            
+            .mt-14 {
+                margin-top: 3.5rem !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar-visible {
+                transform: translateX(0);
+            }
+            
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 40;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-yellow-50 to-amber-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 z-50 w-full bg-gradient-to-r from-yellow-400 to-amber-500 border-b border-yellow-300 shadow-lg">
+        <div class="px-3 py-3 lg:px-5 lg:pl-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center justify-start rtl:justify-end space-x-2">
+                    <!-- Mobile Menu Toggle -->
+                    <button id="mobile-menu-toggle" type="button" class="inline-flex items-center p-2 text-sm text-yellow-900 rounded-lg sm:hidden hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                        <span class="sr-only">Open sidebar</span>
+                        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Account Balance Button -->
+                    <a href="Dashboard/balance.html" class="inline-flex items-center px-3 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                        <img src="https://flowbite.com/docs/images/logo.svg" class="h-4 me-2" alt="Account Logo" />
+                        <span class="">Account Balance</span>
+                    </a>
+
+                    <!-- Deposit Button -->
+                    <a href="Dashboard/payments.html" class="inline-flex items-center px-3 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+                        <img src="https://flowbite.com/docs/images/logo.svg" class="h-4 me-2" alt="Deposit Logo" />
+                        <span class="">Add Balance</span>
+                    </a>
+                    <a href="https://sakthijavacompiler.vercel.app/" target="_blank" rel="noopener noreferrer"
+           class="card-hover flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+          <!-- code bracket icon (compiler) -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          <span class="text-sm font-semibold">online compiler</span>
+        </a>    
+                </div>
+                
+                <div class="flex items-center">
+                    <div class="flex items-center ms-3">
+                        <div>
+                            <button type="button" class="flex text-sm bg-yellow-800 rounded-full focus:ring-4 focus:ring-yellow-300 glow-effect" aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                                <span class="sr-only">Open user menu</span>
+                                <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
+                            </button>
+                        </div>
+                        <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-yellow-100 rounded-lg shadow-lg border border-yellow-200" id="dropdown-user">
+                            <div class="px-4 py-3 bg-gradient-to-r from-yellow-50 to-amber-50" role="none">
+                                <p class="text-sm text-yellow-900 font-semibold" role="none" id="profile-name">
+                                    Loading...
+                                </p>
+                                <p class="text-sm font-medium text-yellow-700 truncate" role="none" id="profile-email">
+                                    Loading...
+                                </p>
+                            </div>
+                            <ul class="py-1" role="none">
+                                <li>
+                                    <a href="Dashboard/dashboard.html" class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-100 hover:text-yellow-900 transition-colors" role="menuitem">Dashboard</a>
+                                </li>
+                                <li>
+                                    <a href="settings.html" class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-100 hover:text-yellow-900 transition-colors" role="menuitem">Settings</a>
+                                </li>
+                                <li>
+                                    <a href="#" class="block px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-100 hover:text-yellow-900 transition-colors" role="menuitem">Earnings</a>
+                                </li>
+                                <li>
+                                    <a href="#" id="sign-out-btn" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900 transition-colors" role="menuitem">Sign out</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside id="logo-sidebar" class="mobile-menu fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-gradient-to-b from-yellow-100 to-amber-100 border-r border-yellow-300 sm:translate-x-0 shadow-xl" aria-label="Sidebar">
+        <div class="h-full px-3 pb-4 overflow-y-auto">
+            <ul class="space-y-2 font-medium">
+                <li>
+                    <a href="Dashboard/dashboard.html" class="flex items-center p-3 text-yellow-900 rounded-lg hover:bg-yellow-200 hover:shadow-md transition-all duration-200 group">
+                        <svg class="w-5 h-5 text-yellow-600 transition duration-75 group-hover:text-yellow-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                            <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                            <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
+                        </svg>
+                        <span class="ms-3">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-yellow-900 rounded-lg hover:bg-yellow-200 hover:shadow-md transition-all duration-200 group">
+                        <svg class="shrink-0 w-5 h-5 text-yellow-600 transition duration-75 group-hover:text-yellow-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                            <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Settings</span>
+                        <span class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-yellow-800 bg-yellow-200 rounded-full">Pro</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mcqtypes/technicalmcqs.html" class="flex items-center p-3 text-yellow-900 rounded-lg hover:bg-yellow-200 hover:shadow-md transition-all duration-200 group">
+                        <svg class="shrink-0 w-5 h-5 text-yellow-600 transition duration-75 group-hover:text-yellow-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                            <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">All MCQs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Dashboard/purchasesmcqtypes.html" class="flex items-center p-3 text-yellow-900 rounded-lg hover:bg-yellow-200 hover:shadow-md transition-all duration-200 group">
+                        <svg class="shrink-0 w-5 h-5 text-yellow-600 transition duration-75 group-hover:text-yellow-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                            <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Purchased Courses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="sidebar-logout-btn" class="flex items-center p-3 text-red-700 rounded-lg hover:bg-red-100 hover:shadow-md transition-all duration-200 group">
+                        <svg class="shrink-0 w-5 h-5 text-red-600 transition duration-75 group-hover:text-red-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                            <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">LOGOUT</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="p-4 sm:ml-64">
+        <div class="p-4 sm:p-6 border-2 border-yellow-300 border-dashed rounded-xl bg-white/50 backdrop-blur-sm mt-16 sm:mt-14 shadow-lg">
+            <!-- Welcome Header - Updated for Agentic AI -->
+            <div class="text-center mb-6 sm:mb-8 px-2">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-900 mb-2 floating">🤖 Welcome to Agentic AI Learning Platform</h1>
+                <p class="text-yellow-700 text-base sm:text-lg">Your AI‑powered companion – assignments evaluated by ML, trainer videos & OpenAI support</p>
+            </div>
+            
+            <!-- Main Cards - Refreshed with AI/Trainer theme -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <!-- 1. Browse Courses (kept) -->
+                <a href="mcqtypes/studentCourses.html" class="card-hover flex flex-col items-center justify-center h-28 sm:h-32 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+                    <div class="text-center p-2">
+                        <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">📘</div>
+                        <p class="text-base sm:text-xl font-bold">Browse Courses</p>
+                        <p class="text-xs sm:text-sm opacity-90">with trainer videos</p>
+                    </div>
+                </a>
+
+                <!-- 2. Enrolled Courses -->
+                <a href="mcqtypes/viewCourse.html" class="card-hover flex flex-col items-center justify-center h-28 sm:h-32 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+                    <div class="text-center p-2">
+                        <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">📋</div>
+                        <p class="text-base sm:text-xl font-bold">My Enrolled</p>
+                        <p class="text-xs sm:text-sm opacity-90">continue learning</p>
+                    </div>
+                </a>
+
+                <!-- 3. AI‑Evaluated Assignments (replaces old assignment card) -->
+                <a href="mcqtypes/technicalmcqs.html" class="card-hover flex flex-col items-center justify-center h-28 sm:h-32 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+                    <div class="text-center p-2">
+                        <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">🧠</div>
+                        <p class="text-base sm:text-xl font-bold">AI Assignments</p>
+                        <p class="text-xs sm:text-sm opacity-90">ML‑evaluated feedback</p>
+                    </div>
+                </a>
+
+                <!-- 4. OpenAI Doubt Support (refined) -->
+                <a href="llm/Openai.html" class="card-hover flex flex-col items-center justify-center h-28 sm:h-32 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+                    <div class="text-center p-2">
+                        <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">🤖</div>
+                        <p class="text-base sm:text-xl font-bold">AI Doubt Support</p>
+                        <p class="text-xs sm:text-sm opacity-90">OpenAI + Agentic AI</p>
+                    </div>
+                </a>
+
+              <a href="https://sakthijavacompiler.vercel.app/" target="_blank" rel="noopener noreferrer"
+           class="card-hover flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+          <!-- code bracket icon (compiler) -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          <span class="text-sm font-semibold">Practice With Online Compiler</span>
+        </a>
+
+                <!-- 6. Source Codes (kept) -->
+                <a href="mcqtypes/Srccodes.html" class="card-hover flex flex-col items-center justify-center h-28 sm:h-32 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+                    <div class="text-center p-2">
+                        <div class="text-2xl sm:text-3xl mb-1 sm:mb-2">💻</div>
+                        <p class="text-base sm:text-xl font-bold">Src Codes</p>
+                        <p class="text-xs sm:text-sm opacity-90">paid source codes</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Bottom Banner - Updated with AI/Trainer message -->
+            <div class="flex items-center justify-center h-40 sm:h-48 rounded-xl bg-gradient-to-r from-amber-300 via-yellow-400 to-yellow-500 shadow-lg px-4">
+                <div class="text-center text-yellow-900 max-w-lg">
+                    <div class="text-4xl sm:text-5xl mb-3 sm:mb-4">⚡</div>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">Learn with Agentic AI</h2>
+                    <p class="text-sm sm:text-lg mb-3 sm:mb-4">Trainer videos + ML evaluation + 24/7 OpenAI support</p>
+                    <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <button class="px-4 sm:px-6 py-2 bg-white text-yellow-600 rounded-lg font-semibold hover:bg-yellow-50 transform hover:scale-105 transition-all duration-200 shadow-md text-sm sm:text-base">
+                            Start Learning
+                        </button>
+                        <button class="px-4 sm:px-6 py-2 bg-yellow-600 text-white rounded-lg font-semibold hover:bg-yellow-700 transform hover:scale-105 transition-all duration-200 shadow-md text-sm sm:text-base">
+                            Meet Trainers
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Block Message -->
+    <div class="admin-block" id="adminBlock">
+        <i class="fas fa-ban"></i>
+        <h2>Access Blocked by Admin</h2>
+        <p>Developer tools have been disabled on this page.</p>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const profileName = document.getElementById('profile-name');
+            const profileEmail = document.getElementById('profile-email');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebar = document.getElementById('logo-sidebar');
+            const mobileOverlay = document.getElementById('mobile-overlay');
+            const userMenuButton = document.querySelector('[data-dropdown-toggle="dropdown-user"]');
+            const dropdownUser = document.getElementById('dropdown-user');
+
+            // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            // Check login and role
+            if (!user || user.role !== 'user') {
+                alert("Session expired");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Set profile data
+            if (profileName) profileName.textContent = user.name || user.username || 'User';
+            if (profileEmail) profileEmail.textContent = user.email || 'user@example.com';
+
+            // Mobile menu toggle
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('-translate-x-full');
+                mobileOverlay.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking overlay
+            mobileOverlay.addEventListener('click', function() {
+                sidebar.classList.add('-translate-x-full');
+                mobileOverlay.classList.remove('active');
+            });
+
+            // Close sidebar when clicking on a link (mobile)
+            document.querySelectorAll('#logo-sidebar a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('-translate-x-full');
+                        mobileOverlay.classList.remove('active');
+                    }
+                });
+            });
+
+            // User dropdown toggle
+            if (userMenuButton && dropdownUser) {
+                userMenuButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownUser.classList.toggle('hidden');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userMenuButton.contains(e.target) && !dropdownUser.contains(e.target)) {
+                        dropdownUser.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Handle logout
+            const handleLogout = (e) => {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('isLoggedIn');
+                localStorage.clear();
+                window.location.href = 'index.html';
+            };
+
+            // Add event listeners for logout
+            if (signOutBtn) signOutBtn.addEventListener('click', handleLogout);
+            if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', handleLogout);
+
+            // SECURITY: BLOCK DEVELOPER TOOLS
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                showAdminBlock();
+                return false;
+            });
+
+            document.addEventListener('keydown', function(e) {
+                // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+                if (
+                    e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+                    (e.ctrlKey && e.key === 'u') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'C')
+                ) {
+                    e.preventDefault();
+                    showAdminBlock();
+                    return false;
+                }
+            });
+
+            // Function to show admin block message
+            function showAdminBlock() {
+                const adminBlock = document.getElementById('adminBlock');
+                adminBlock.style.display = 'flex';
+                setTimeout(() => {
+                    adminBlock.style.display = 'none';
+                }, 3000);
+            }
+
+            // Responsive adjustments on window resize
+            function handleResize() {
+                if (window.innerWidth >= 768) {
+                    // On desktop, ensure sidebar is visible and overlay hidden
+                    sidebar.classList.remove('-translate-x-full');
+                    mobileOverlay.classList.remove('active');
+                } else {
+                    // On mobile, ensure sidebar is hidden by default
+                    sidebar.classList.add('-translate-x-full');
+                    mobileOverlay.classList.remove('active');
+                }
+            }
+
+            // Initial call
+            handleResize();
+
+            // Add resize listener
+            window.addEventListener('resize', handleResize);
+        });
+    </script>
+</body>
+</html>

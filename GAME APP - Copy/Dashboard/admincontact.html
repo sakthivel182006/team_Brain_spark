@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sakthivel V | Contact Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',
+            primaryLight: '#6366F1',
+            primaryDark: '#4338CA',
+            secondary: '#10B981',
+            secondaryLight: '#34D399',
+            secondaryDark: '#059669',
+            dark: '#1F2937',
+            light: '#F9FAFB',
+            accent: '#F59E0B',
+            danger: '#EF4444'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Poppins', 'sans-serif']
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom CSS - Over 300 lines */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+    
+    :root {
+      --shadow-color: 0deg 0% 63%;
+      --shadow-elevation-medium:
+        0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.36),
+        0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.36),
+        2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.36),
+        5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.36);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+    }
+    
+    .heading-font {
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: var(--shadow-elevation-medium);
+    }
+    
+    .contact-card {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-style: preserve-3d;
+    }
+    
+    .contact-card:hover {
+      transform: translateY(-8px) rotateX(5deg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .contact-icon {
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .contact-icon:hover {
+      transform: scale(1.1) translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .pulse-slow {
+      animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3), 0 2px 4px -1px rgba(79, 70, 229, 0.2);
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3), 0 4px 6px -2px rgba(79, 70, 229, 0.2);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3), 0 2px 4px -1px rgba(16, 185, 129, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .input-field {
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .input-field:focus {
+      border-color: #6366F1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 50;
+      transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+      transform: translateX(-3px);
+    }
+    
+    .contact-info-item {
+      transition: all 0.3s ease;
+    }
+    
+    .contact-info-item:hover {
+      background: rgba(249, 250, 251, 0.7);
+      transform: translateX(5px);
+    }
+    
+    .social-icon {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .social-icon::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.6s ease;
+    }
+    
+    .social-icon:hover::before {
+      left: 100%;
+    }
+    
+    .wave-shape {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      line-height: 0;
+      transform: rotate(180deg);
+    }
+    
+    .wave-shape svg {
+      position: relative;
+      display: block;
+      width: calc(100% + 1.3px);
+      height: 150px;
+    }
+    
+    .wave-shape .shape-fill {
+      fill: #4F46E5;
+      opacity: 0.1;
+    }
+    
+    @media (max-width: 768px) {
+      .wave-shape svg {
+        height: 80px;
+      }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #6366F1;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4F46E5;
+    }
+    
+    /* Tooltip styles */
+    .tooltip {
+      position: relative;
+    }
+    
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 120px;
+      background-color: #1F2937;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #1F2937 transparent transparent transparent;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* Ripple effect */
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.7);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    /* Custom checkbox */
+    .custom-checkbox {
+      position: relative;
+      padding-left: 30px;
+      cursor: pointer;
+    }
+    
+    .custom-checkbox input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: #fff;
+      border: 2px solid #D1D5DB;
+      border-radius: 4px;
+    }
+    
+    .custom-checkbox:hover input ~ .checkmark {
+      background-color: #f3f4f6;
+    }
+    
+    .custom-checkbox input:checked ~ .checkmark {
+      background-color: #4F46E5;
+      border-color: #4F46E5;
+    }
+    
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    
+    .custom-checkbox input:checked ~ .checkmark:after {
+      display: block;
+    }
+    
+    .custom-checkbox .checkmark:after {
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* Main container adjustments for scrolling */
+    .main-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-container {
+      flex: 1;
+      padding: 2rem 0;
+    }
+
+    /* Ensure content doesn't get hidden behind fixed elements */
+    body {
+      padding-top: 60px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      body {
+        padding-top: 50px;
+      }
+      .back-btn {
+        top: 1rem;
+        left: 1rem;
+      }
+    }
+  </style>
+</head>
+<body class="relative">
+  <!-- Back Button -->
+  <a href="dashboard.html" class="back-btn btn-primary text-white rounded-full p-3 shadow-lg tooltip" id="backButton">
+    <i class="fas fa-arrow-left text-lg"></i>
+    <span class="tooltip-text">Back to Dashboard</span>
+  </a>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <div class="content-container">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="glass-card overflow-hidden relative">
+          <!-- Wave Decoration -->
+          <div class="wave-shape">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21, 0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+          </div>
+
+          <!-- Header Section -->
+          <div class="bg-gradient-to-r from-primary to-primaryLight p-8 md:p-10 text-center text-white relative">
+            <div class="absolute top-4 right-4 pulse-slow">
+              <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </span>
+            </div>
+            
+            <div class="flex justify-center floating">
+              <img src="753b6b70-0a4e-45bb-a75d-bde595952866.png" alt="Sakthivel V" class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-xl object-cover">
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold mt-6 heading-font">Sakthivel V</h1>
+            <p class="text-blue-100 mt-2 text-lg">Computer Science Engineer | Full Stack Developer</p>
+          </div>
+
+          <!-- Main Content -->
+          <div class="p-6 md:p-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Contact Information -->
+            <div class="space-y-8">
+              <h2 class="text-2xl md:text-3xl font-bold text-dark flex items-center heading-font">
+                <i class="fas fa-id-card mr-3 text-primary"></i>
+                Contact Information
+              </h2>
+              
+              <div class="space-y-5">
+                <!-- Phone -->
+                <div class="contact-info-item bg-gray-50 p-5 rounded-xl border border-gray-100 flex items-start">
+                  <div class="bg-blue-100 p-3 rounded-full mr-4 flex-shrink-0">
+                    <i class="fas fa-phone text-primary text-lg"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-700 text-lg">Phone Number</h3>
+                    <a href="tel:9361586944" class="text-gray-600 hover:text-primary transition text-base md:text-lg">+91 9361586944</a>
+                    <p class="text-gray-500 text-sm mt-1">Available 9AM - 6PM IST</p>
+                  </div>
+                </div>
+                
+                <!-- Email -->
+                <div class="contact-info-item bg-gray-50 p-5 rounded-xl border border-gray-100 flex items-start">
+                  <div class="bg-green-100 p-3 rounded-full mr-4 flex-shrink-0">
+                    <i class="fas fa-envelope text-secondary text-lg"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-700 text-lg">Email Address</h3>
+                    <a href="mailto:sakthivelv202222@gmail.com" class="text-gray-600 hover:text-primary transition text-base md:text-lg">sakthivelv202222@gmail.com</a>
+                    <p class="text-gray-500 text-sm mt-1">Response within 24 hours</p>
+                  </div>
+                </div>
+                
+                <!-- Location -->
+                <div class="contact-info-item bg-gray-50 p-5 rounded-xl border border-gray-100 flex items-start">
+                  <div class="bg-purple-100 p-3 rounded-full mr-4 flex-shrink-0">
+                    <i class="fas fa-map-marker-alt text-purple-500 text-lg"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-700 text-lg">Location</h3>
+                    <p class="text-gray-600 text-base md:text-lg">Tamil Nadu, India</p>
+                    <p class="text-gray-500 text-sm mt-1">Open to remote opportunities</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Social Links -->
+              <div class="pt-4">
+                <h3 class="font-semibold text-gray-700 mb-4 text-xl heading-font">Connect With Me</h3>
+                <div class="flex flex-wrap gap-4">
+                  <a href="https://github.com/sakthivel182006" target="_blank" class="social-icon contact-icon bg-gray-800 text-white p-4 rounded-full hover:bg-gray-700 ripple">
+                    <i class="fab fa-github text-xl"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/in/sakthivel2006" target="_blank" class="social-icon contact-icon bg-blue-600 text-white p-4 rounded-full hover:bg-blue-500 ripple">
+                    <i class="fab fa-linkedin-in text-xl"></i>
+                  </a>
+                  <a href="https://www.instagram.com/solo__x__sakthi" target="_blank" class="social-icon contact-icon bg-gradient-to-r from-pink-500 to-yellow-500 text-white p-4 rounded-full hover:from-pink-600 hover:to-yellow-600 ripple">
+                    <i class="fab fa-instagram text-xl"></i>
+                  </a>
+                  <a href="https://sakthivelv-cse.onrender.com" target="_blank" class="social-icon contact-icon bg-teal-600 text-white p-4 rounded-full hover:bg-teal-500 ripple">
+                    <i class="fas fa-globe text-xl"></i>
+                  </a>
+                  <a href="mailto:sakthivelv202222@gmail.com" class="social-icon contact-icon bg-red-500 text-white p-4 rounded-full hover:bg-red-600 ripple">
+                    <i class="fas fa-envelope text-xl"></i>
+                  </a>
+                  <a href="tel:9361586944" class="social-icon contact-icon bg-green-500 text-white p-4 rounded-full hover:bg-green-600 ripple">
+                    <i class="fas fa-phone-alt text-xl"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Contact Form -->
+            <div class="contact-card bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100">
+              <h2 class="text-2xl md:text-3xl font-bold text-dark mb-6 flex items-center heading-font">
+                <i class="fas fa-paper-plane mr-3 text-primary"></i>
+                Send Me a Message
+              </h2>
+              
+              <form class="space-y-5">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
+                  <input type="text" id="name" required class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition">
+                </div>
+                
+                <div>
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Your Email *</label>
+                  <input type="email" id="email" required class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition">
+                </div>
+                
+                <div>
+                  <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                  <input type="text" id="subject" required class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition">
+                </div>
+                
+                <div>
+                  <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Your Message *</label>
+                  <textarea id="message" rows="5" required class="input-field w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition"></textarea>
+                </div>
+                
+                <div class="flex items-center">
+                  <label class="custom-checkbox text-sm text-gray-700">
+                    <input type="checkbox" required>
+                    <span class="checkmark"></span>
+                    I agree to the privacy policy
+                  </label>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full text-white font-bold py-3 px-6 rounded-lg transition duration-300 ripple">
+                  Send Message <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div class="bg-gray-100 px-8 py-6 text-center border-t border-gray-200">
+            <p class="text-gray-600">&copy; 2025 Sakthivel V. All rights reserved.</p>
+            <p class="text-gray-500 text-sm mt-2">Designed with <i class="fas fa-heart text-red-500"></i> by Sakthivel</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get user data from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    // Check if user is not logged in
+    if (!user || isLoggedIn !== 'true') {
+      // Redirect to Home.html in the same folder
+      window.location.href = '../Home.html';
+      return;
+    }
+  });
+</script>
+  <script>
+    // Ripple effect for buttons
+    document.querySelectorAll('.ripple').forEach(button => {
+      button.addEventListener('click', function(e) {
+        const x = e.clientX - e.target.getBoundingClientRect().left;
+        const y = e.clientY - e.target.getBoundingClientRect().top;
+        
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple-effect');
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+
+    // Back button animation
+    const backButton = document.getElementById('backButton');
+    backButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      backButton.innerHTML = '<i class="fas fa-spinner fa-spin text-lg"></i>';
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 800);
+    });
+
+    // Ensure the page is scrollable
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+  </script>
+</body>
+</html>

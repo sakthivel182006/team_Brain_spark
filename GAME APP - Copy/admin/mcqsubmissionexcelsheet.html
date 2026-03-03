@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submission Fetcher</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-hover: #3a56d4;
+      --secondary: #f8f9fa;
+      --text: #212529;
+      --text-light: #6c757d;
+      --border: #dee2e6;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: #f5f7fa;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    
+    .input-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background-color: #e9ecef;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background-color: var(--secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      color: var(--text-light);
+    }
+    
+    tr:hover {
+      background-color: rgba(67, 97, 238, 0.03);
+    }
+    
+    .status-active {
+      color: var(--success);
+      font-weight: 500;
+    }
+    
+    .status-inactive {
+      color: var(--danger);
+      font-weight: 500;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .badge-success {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: var(--success);
+    }
+    
+    .badge-danger {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: var(--danger);
+    }
+    
+    .badge-warning {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #d39e00;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      input, .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Submission Fetcher</h1>
+      <p class="subtitle">View and analyze test submission data</p>
+    </header>
+    
+    <div class="card">
+      <h2 class="card-title">Fetch by User ID & MCQ Type ID</h2>
+      <div class="input-group">
+        <input type="text" id="userIdInput" placeholder="Enter User ID" />
+        <input type="text" id="mcqTypeIdInput" placeholder="Enter MCQ Type ID" />
+        <button class="btn btn-primary" onclick="fetchByUserAndMcq()">Fetch Results</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2 class="card-title">Fetch by MCQ Type ID Only</h2>
+      <div class="input-group">
+        <input type="text" id="onlyMcqTypeIdInput" placeholder="Enter MCQ Type ID Only" />
+        <button class="btn btn-primary" onclick="fetchByMcqOnly()">Fetch All Submissions</button>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-secondary" onclick="downloadExcel()">
+        <i class="fas fa-download"></i> Download as Excel
+      </button>
+    </div>
+    
+    <div class="card">
+      <div class="table-container">
+        <table id="submissionTable">
+          <thead>
+            <tr>
+              <th>Submission ID</th>
+              <th>User ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>MCQ Type</th>
+              <th>Questions</th>
+              <th>Attended</th>
+              <th>Correct</th>
+              <th>Wrong</th>
+              <th>Score</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Activity</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="submissionBody">
+            <tr>
+              <td colspan="14" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                No data available. Fetch submissions to view results.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<script>
+    // Redirect to index.html if admin is not logged in
+    window.onload = function () {
+        const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+             // 🔒 Check login and role
+            if (!user || user.role !== 'admin') {
+                alert("session expired");
+                window.location.href = '../index.html';
+                return;
+            }
+    };
+  </script> 
+  <script>
+    const BASE_API = "https://gameappbackend-i8zv.onrender.com/api/testsubmissions";
+
+    function clearTable() {
+      const tbody = document.getElementById('submissionBody');
+      tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 2rem; color: var(--text-light);">No data available. Fetch submissions to view results.</td></tr>';
+    }
+
+    function showLoading() {
+      const tbody = document.getElementById('submissionBody');
+      tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 2rem; color: var(--text-light);">Loading data...</td></tr>';
+    }
+
+    async function fetchByUserAndMcq() {
+      const userId = document.getElementById('userIdInput').value.trim();
+      const mcqTypeId = document.getElementById('mcqTypeIdInput').value.trim();
+
+      if (!userId || !mcqTypeId) {
+        alert("Please enter both User ID and MCQ Type ID.");
+        return;
+      }
+
+      const url = `${BASE_API}/submissiondetailsbothuseridandmcqtypeidmatched/${userId}/${mcqTypeId}`;
+      showLoading();
+      await fetchAndDisplay(url);
+    }
+
+    async function fetchByMcqOnly() {
+      const mcqTypeId = document.getElementById('onlyMcqTypeIdInput').value.trim();
+
+      if (!mcqTypeId) {
+        alert("Please enter MCQ Type ID.");
+        return;
+      }
+      
+      const url = `${BASE_API}/mcqtypeid/${mcqTypeId}`;
+      showLoading();
+      await fetchAndDisplay(url);
+    }
+
+    async function fetchAndDisplay(url) {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const tbody = document.getElementById('submissionBody');
+        tbody.innerHTML = '';
+
+        if (Array.isArray(data) && data.length > 0) {
+          data.forEach(item => {
+            const row = document.createElement('tr');
+            
+            // Determine status badge class
+            let statusClass = '';
+            if (item.status === 'completed') statusClass = 'badge-success';
+            else if (item.status === 'failed') statusClass = 'badge-danger';
+            else statusClass = 'badge-warning';
+            
+            // Determine activity status
+            let activityStatus = item.activityStatus || 'unknown';
+            let activityClass = activityStatus === 'active' ? 'status-active' : 'status-inactive';
+            
+            row.innerHTML = `
+              <td><span class="badge">${item._id || '-'}</span></td>
+              <td>${item.userId?._id || '-'}</td>
+              <td>${item.userId?.username || '-'}</td>
+              <td>${item.userId?.email || '-'}</td>
+              <td>${item.mcqTypeId || '-'}</td>
+              <td>${item.noofquestions || '0'}</td>
+              <td>${item.attendedquestions || '0'}</td>
+              <td>${item.noofcorrecctquestions || '0'}</td>
+              <td>${item.noofwrongquestions || '0'}</td>
+              <td><strong>${item.percentage || '0'}%</strong></td>
+              <td>${item.durationInSeconds || '0'}s</td>
+              <td><span class="badge ${statusClass}">${item.status || '-'}</span></td>
+              <td class="${activityClass}">${activityStatus}</td>
+              <td>${item.submittedAt ? new Date(item.submittedAt).toLocaleString() : '-'}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 2rem; color: var(--text-light);">No submission data found.</td></tr>';
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        const tbody = document.getElementById('submissionBody');
+        tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 2rem; color: var(--danger);">Error fetching data. Please try again.</td></tr>';
+      }
+    }
+
+    function downloadExcel() {
+      const table = document.getElementById("submissionTable").outerHTML;
+      const blob = new Blob(["\ufeff", table], {
+        type: "application/vnd.ms-excel",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "submission_results.xls";
+      a.click();
+    }
+  </script>
+</body>
+</html>

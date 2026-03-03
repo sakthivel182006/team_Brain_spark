@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings Analytics Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #3f37c9;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --success: #4cc9f0;
+      --danger: #f72585;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7fb;
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      outline: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--light-gray);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    th {
+      background-color: var(--light);
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    
+    tr:hover {
+      background-color: rgba(67, 97, 238, 0.03);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.35rem 0.65rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .badge-success {
+      background-color: rgba(76, 201, 240, 0.1);
+      color: var(--success);
+    }
+    
+    .badge-danger {
+      background-color: rgba(247, 37, 133, 0.1);
+      color: var(--danger);
+    }
+    
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    
+    .spinner {
+      width: 2rem;
+      height: 2rem;
+      border: 3px solid rgba(67, 97, 238, 0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--gray);
+    }
+    
+    .empty-state img {
+      max-width: 200px;
+      margin-bottom: 1rem;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .filter-group {
+      flex: 1;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray);
+    }
+    
+    select, input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .earnings-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .summary-card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .summary-title {
+      font-size: 0.875rem;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+    
+    .summary-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .summary-positive {
+      color: var(--success);
+    }
+    
+    .summary-negative {
+      color: var(--danger);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Earnings Analytics</h1>
+      <button id="fetchEarningsBtn" class="btn btn-primary">
+        <span id="btnText">Calculate Earnings</span>
+        <span id="btnSpinner" class="spinner" style="display: none; margin-left: 8px;"></span>
+      </button>
+    </div>
+    
+    <div class="filters">
+      <div class="filter-group">
+        <label for="userId">User ID</label>
+        <input type="text" id="userId" placeholder="Enter user ID">
+      </div>
+      <div class="filter-group">
+        <label for="mcqType">MCQ Type</label>
+        <select id="mcqType">
+          <option value="">All Types</option>
+          <option value="General Knowledge">General Knowledge</option>
+          <option value="Science">Science</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="History">History</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="dateRange">Date Range</label>
+        <select id="dateRange">
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+      </div>
+    </div>
+    
+    <div id="earningsSummary" class="earnings-summary" style="display: none;">
+      <div class="summary-card">
+        <div class="summary-title">Total User Earnings</div>
+        <div id="totalUserEarnings" class="summary-value summary-positive">₹0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Total Admin Earnings</div>
+        <div id="totalAdminEarnings" class="summary-value summary-positive">₹0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Total Tests Taken</div>
+        <div id="totalTestsTaken" class="summary-value">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Average Score</div>
+        <div id="averageScore" class="summary-value">0%</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Earnings Distribution</div>
+      </div>
+      <div class="table-responsive">
+        <table id="earningsTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>MCQ Test</th>
+              <th>Entry Fee</th>
+              <th>Score</th>
+              <th>Correct</th>
+              <th>Wrong</th>
+              <th>Deduction</th>
+              <th>User Earning</th>
+              <th>Admin Earning</th>
+              <th>Rank</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="11" class="empty-state">
+                <div>
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#e9ecef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 16V12M12 8H12.01" stroke="#e9ecef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <h3>No earnings data available</h3>
+                  <p>Click "Calculate Earnings" to fetch distribution data</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<script>
+    // Redirect to index.html if admin is not logged in
+    window.onload = function () {
+        const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+             // 🔒 Check login and role
+            if (!user || user.role !== 'admin') {
+                alert("session expired");
+                window.location.href = '../index.html';
+                return;
+            }
+    };
+  </script> 
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const fetchEarningsBtn = document.getElementById('fetchEarningsBtn');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+      const tableBody = document.getElementById('tableBody');
+      const earningsSummary = document.getElementById('earningsSummary');
+      
+      fetchEarningsBtn.addEventListener('click', async function() {
+        const userId = document.getElementById('userId').value;
+        const mcqType = document.getElementById('mcqType').value;
+        const dateRange = document.getElementById('dateRange').value;
+        
+        // Show loading state
+        btnText.textContent = 'Calculating...';
+        btnSpinner.style.display = 'inline-block';
+        fetchEarningsBtn.disabled = true;
+        
+        try {
+          // Build query parameters
+          const params = new URLSearchParams();
+          if (userId) params.append('userId', userId);
+          if (mcqType) params.append('mcqType', mcqType);
+          if (dateRange && dateRange !== 'all') params.append('dateRange', dateRange);
+          
+          const res = await fetch(`https://gameappbackend-i8zv.onrender.com/api/testsubmissions/calculate-earnings?${params.toString()}`);
+          const data = await res.json();
+          
+          if (data.success && data.distribution.length > 0) {
+            // Clear empty state
+            tableBody.innerHTML = '';
+            
+            // Calculate summary stats
+            let totalUserEarnings = 0;
+            let totalAdminEarnings = 0;
+            let totalPercentage = 0;
+            
+            data.distribution.forEach(item => {
+              totalUserEarnings += parseFloat(item.userEarning) || 0;
+              totalAdminEarnings += parseFloat(item.adminEarning) || 0;
+              totalPercentage += parseFloat(item.percentage) || 0;
+              
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>
+                  <div><strong>${item.username}</strong></div>
+                  <div style="font-size: 0.75rem; color: var(--gray);">${item.email}</div>
+                </td>
+                <td>${item.mcqName}</td>
+                <td>₹${item.entryFee}</td>
+                <td>
+                  <div class="badge ${item.percentage >= 50 ? 'badge-success' : 'badge-danger'}">
+                    ${item.percentage}%
+                  </div>
+                </td>
+                <td>${item.correctAnswers}</td>
+                <td>${item.wrongAnswers}</td>
+                <td>${item.negativeMarkDeduction}</td>
+                <td><strong>₹${item.userEarning}</strong></td>
+                <td>₹${item.adminEarning}</td>
+                <td>${item.rank}</td>
+                <td>${new Date(item.submittedAt).toLocaleDateString()}</td>
+              `;
+              tableBody.appendChild(row);
+            });
+            
+            // Update summary cards
+            document.getElementById('totalUserEarnings').textContent = `₹${totalUserEarnings.toFixed(2)}`;
+            document.getElementById('totalAdminEarnings').textContent = `₹${totalAdminEarnings.toFixed(2)}`;
+            document.getElementById('totalTestsTaken').textContent = data.distribution.length;
+            document.getElementById('averageScore').textContent = `${(totalPercentage / data.distribution.length).toFixed(1)}%`;
+            
+            // Show summary
+            earningsSummary.style.display = 'grid';
+          } else {
+            tableBody.innerHTML = `
+              <td colspan="11" class="empty-state">
+                <div>
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#e9ecef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 16V12M12 8H12.01" stroke="#e9ecef" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <h3>No earnings data found</h3>
+                  <p>${data.message || 'Try adjusting your filters'}</p>
+                </div>
+              </td>
+            `;
+            earningsSummary.style.display = 'none';
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          tableBody.innerHTML = `
+            <td colspan="11" class="empty-state">
+              <div>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#f72585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 8V12M12 16H12.01" stroke="#f72585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Error loading data</h3>
+                <p>Failed to fetch earnings distribution. Please try again.</p>
+              </div>
+            </td>
+          `;
+          earningsSummary.style.display = 'none';
+        } finally {
+          // Reset button state
+          btnText.textContent = 'Calculate Earnings';
+          btnSpinner.style.display = 'none';
+          fetchEarningsBtn.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

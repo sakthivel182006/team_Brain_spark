@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Submissions Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <style>
+    :root {
+      --primary-color: #4e73df;
+      --secondary-color: #f8f9fc;
+      --accent-color: #2e59d9;
+      --text-color: #5a5c69;
+      --light-color: #ffffff;
+      --danger-color: #e74a3b;
+      --success-color: #1cc88a;
+    }
+    
+    body {
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f8f9fc;
+      color: var(--text-color);
+    }
+    
+    .sidebar {
+      background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+      min-height: 100vh;
+      transition: all 0.3s;
+    }
+    
+    .sidebar .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+    }
+    
+    .sidebar .nav-link:hover {
+      color: var(--light-color);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar .nav-link.active {
+      color: var(--light-color);
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .sidebar .nav-link i {
+      margin-right: 0.5rem;
+    }
+    
+    .topbar {
+      height: 4.375rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+      background-color: var(--light-color);
+    }
+    
+    .card {
+      border: none;
+      border-radius: 0.35rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+    
+    .card-header {
+      background-color: var(--secondary-color);
+      border-bottom: 1px solid #e3e6f0;
+      font-weight: 600;
+    }
+    
+    .badge-success {
+      background-color: var(--success-color);
+    }
+    
+    .badge-danger {
+      background-color: var(--danger-color);
+    }
+    
+    .badge-warning {
+      background-color: #f6c23e;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+      border-radius: 0.35rem;
+      padding: 0.375rem 0.75rem;
+      border: 1px solid #d1d3e2;
+    }
+    
+    .dataTables_wrapper .dataTables_length select {
+      border-radius: 0.35rem;
+      padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+      border: 1px solid #d1d3e2;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.35rem;
+      border: 1px solid #d1d3e2;
+      margin-left: 0.25rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: var(--primary-color);
+      color: white !important;
+      border: 1px solid var(--primary-color);
+    }
+    
+    @media print {
+      .no-print, .dataTables_length, .dataTables_filter, .dataTables_info, 
+      .dataTables_paginate, .sidebar, .topbar, .card-header .btn {
+        display: none !important;
+      }
+      
+      .card {
+        box-shadow: none;
+        border: none;
+      }
+      
+      .card-header {
+        background-color: transparent !important;
+        border-bottom: 1px solid #dee2e6 !important;
+      }
+      
+      table {
+        width: 100% !important;
+      }
+    }
+    
+    .progress {
+      height: 1rem;
+      border-radius: 0.35rem;
+    }
+    
+    .progress-bar {
+      background-color: var(--primary-color);
+    }
+    
+    .filter-section {
+      background-color: var(--secondary-color);
+      border-radius: 0.35rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .stats-card {
+      border-left: 0.25rem solid var(--primary-color) !important;
+    }
+    
+    .stats-card .card-body {
+      padding: 1rem 1.5rem;
+    }
+    
+    .stats-card .text-primary {
+      color: var(--primary-color) !important;
+    }
+    
+    .stats-card .text-xs {
+      font-size: 0.7rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3 col-lg-2 d-md-block sidebar collapse no-print" id="sidebarMenu" style="background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);">
+        <div class="position-sticky pt-3">
+          <div class="text-center mb-4">
+            <h4 class="text-white"><i class="bi bi-journal-text me-2"></i>Test Analytics</h4>
+          </div>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="bi bi-people me-2"></i>
+                Users
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="bi bi-collection me-2"></i>
+                Test Types
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="bi bi-graph-up me-2"></i>
+                Analytics
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="adminhomepage.html">
+  <i class="bi bi-gear me-2"></i>
+  Logout
+</a>
+
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow no-print">
+          <button class="btn btn-link d-md-none rounded-circle me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+            <i class="bi bi-list"></i>
+          </button>
+          
+          <!-- Topbar Search -->
+          <form class="d-none d-sm-inline-block form-inline me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
+            <div class="input-group">
+              <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" id="globalSearch">
+              <button class="btn btn-primary" type="button">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </form>
+          
+          <!-- Topbar Navbar -->
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell fs-5"></i>
+                <span class="badge badge-danger badge-counter">3+</span>
+              </a>
+            </li>
+            
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-envelope fs-5"></i>
+                <span class="badge badge-danger badge-counter">7</span>
+              </a>
+            </li>
+            
+            <div class="topbar-divider d-none d-sm-block"></div>
+            
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="me-2 d-none d-lg-inline text-gray-600 small">Admin User</span>
+                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60" width="32" height="32">
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
+          <h1 class="h3 mb-0 text-gray-800">Test Submissions Dashboard</h1>
+          <button class="btn btn-primary shadow-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Generate Report
+          </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4 no-print">
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col me-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Submissions</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSubmissions">0</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="bi bi-journal-text fs-2 text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col me-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Avg. Score</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="avgScore">0%</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="bi bi-graph-up fs-2 text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col me-2">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Tests</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="activeTests">0</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="bi bi-activity fs-2 text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col me-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Unique Users</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="uniqueUsers">0</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="bi bi-people fs-2 text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="card shadow mb-4 no-print">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+            <div class="dropdown no-arrow">
+              <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical text-gray-400"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item" href="#" onclick="resetFilters()">Reset Filters</a></li>
+                <li><a class="dropdown-item" href="#" onclick="exportToCSV()">Export to CSV</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="userIdFilter" class="form-label">User ID</label>
+                <input type="text" class="form-control" id="userIdFilter" placeholder="Enter User ID">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="mcqTypeIdFilter" class="form-label">MCQ Type ID</label>
+                <input type="text" class="form-control" id="mcqTypeIdFilter" placeholder="Enter MCQ Type ID">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="statusFilter" class="form-label">Status</label>
+                <select class="form-select" id="statusFilter">
+                  <option value="">All Statuses</option>
+                  <option value="completed">Completed</option>
+                  <option value="inprogress">In Progress</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="dateFromFilter" class="form-label">Date From</label>
+                <input type="date" class="form-control" id="dateFromFilter">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="dateToFilter" class="form-label">Date To</label>
+                <input type="date" class="form-control" id="dateToFilter">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="scoreRangeFilter" class="form-label">Score Range</label>
+                <select class="form-select" id="scoreRangeFilter">
+                  <option value="">All Scores</option>
+                  <option value="0-25">0-25%</option>
+                  <option value="25-50">25-50%</option>
+                  <option value="50-75">50-75%</option>
+                  <option value="75-100">75-100%</option>
+                </select>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-primary me-2" onclick="applyFilters()">
+                <i class="bi bi-funnel me-1"></i> Apply Filters
+              </button>
+              <button class="btn btn-secondary" onclick="resetFilters()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Test Submissions</h6>
+            <div>
+              <button class="btn btn-sm btn-success me-2" onclick="fetchAllSubmissions()">
+                <i class="bi bi-arrow-repeat me-1"></i> Refresh
+              </button>
+              <button class="btn btn-sm btn-primary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Print
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover" id="submissionsTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>MCQ Type</th>
+                    <th>Questions</th>
+                    <th>Attended</th>
+                    <th>Correct</th>
+                    <th>Wrong</th>
+                    <th>Score</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Activity</th>
+                    <th>Submitted At</th>
+                    <th class="no-print">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="submissionTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Submission</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editForm">
+            <input type="hidden" id="editId">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editUserId" class="form-label">User ID</label>
+                <input type="text" class="form-control" id="editUserId" required>
+              </div>
+              <div class="col-md-6">
+                <label for="editMcqTypeId" class="form-label">MCQ Type ID</label>
+                <input type="text" class="form-control" id="editMcqTypeId" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="editNoOfQuestions" class="form-label">Total Questions</label>
+                <input type="number" class="form-control" id="editNoOfQuestions" required>
+              </div>
+              <div class="col-md-4">
+                <label for="editAttendedQuestions" class="form-label">Attended Questions</label>
+                <input type="number" class="form-control" id="editAttendedQuestions" required>
+              </div>
+              <div class="col-md-4">
+                <label for="editCorrectQuestions" class="form-label">Correct Answers</label>
+                <input type="number" class="form-control" id="editCorrectQuestions" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="editWrongQuestions" class="form-label">Wrong Answers</label>
+                <input type="number" class="form-control" id="editWrongQuestions" required>
+              </div>
+              <div class="col-md-4">
+                <label for="editPercentage" class="form-label">Percentage</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="editPercentage" required>
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="editDuration" class="form-label">Duration (seconds)</label>
+                <input type="number" class="form-control" id="editDuration" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editStatus" class="form-label">Status</label>
+                <select class="form-select" id="editStatus" required>
+                  <option value="completed">Completed</option>
+                  <option value="inprogress">In Progress</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="editActivityStatus" class="form-label">Activity Status</label>
+                <select class="form-select" id="editActivityStatus" required>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="saveChanges()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Details Modal -->
+  <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailsModalLabel">Submission Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="detailsModalBody">
+          <!-- Details will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script>
+    // Redirect to index.html if admin is not logged in
+    window.onload = function () {
+      // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+             // 🔒 Check login and role
+            if (!user || user.role !== 'admin') {
+                alert("session expired");
+                window.location.href = '../index.html';
+                return;
+            }
+    };
+  </script> 
+  <script>
+    const API_URL = 'https://gameappbackend-i8zv.onrender.com/api/testsubmissions';
+    let submissionsData = [];
+    let dataTable;
+    
+    $(document).ready(function() {
+      initializeDataTable();
+      fetchAllSubmissions();
+      
+      // Initialize date filters to current month
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      document.getElementById('dateFromFilter').valueAsDate = firstDay;
+      document.getElementById('dateToFilter').valueAsDate = today;
+    });
+    
+    function initializeDataTable() {
+      dataTable = $('#submissionsTable').DataTable({
+        responsive: true,
+        dom: '<"top"lf>rt<"bottom"ip>',
+        columns: [
+          { data: '_id' },
+          { data: 'userId' },
+          { data: 'mcqTypeId' },
+          { data: 'noofquestions' },
+          { data: 'attendedquestions' },
+          { data: 'noofcorrecctquestions' },
+          { data: 'noofwrongquestions' },
+          { 
+            data: 'percentage',
+            render: function(data, type, row) {
+              return `<div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: ${data}%" 
+                          aria-valuenow="${data}" aria-valuemin="0" aria-valuemax="100">${data}%
+                        </div>
+                      </div>`;
+            }
+          },
+          { 
+            data: 'durationInSeconds',
+            render: function(data) {
+              const mins = Math.floor(data / 60);
+              const secs = data % 60;
+              return `${mins}m ${secs}s`;
+            }
+          },
+          { 
+            data: 'status',
+            render: function(data) {
+              let badgeClass = 'badge-secondary';
+              if (data === 'completed') badgeClass = 'badge-success';
+              if (data === 'inprogress') badgeClass = 'badge-primary';
+              return `<span class="badge ${badgeClass}">${data}</span>`;
+            }
+          },
+          { 
+            data: 'activityStatus',
+            render: function(data) {
+              let badgeClass = 'badge-secondary';
+              if (data === 'active') badgeClass = 'badge-success';
+              if (data === 'inactive') badgeClass = 'badge-warning';
+              return `<span class="badge ${badgeClass}">${data}</span>`;
+            }
+          },
+          { 
+            data: 'submittedAt',
+            render: function(data) {
+              return new Date(data).toLocaleString();
+            }
+          },
+          {
+            data: '_id',
+            className: 'no-print',
+            render: function(data, type, row) {
+              return `<div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-info" onclick="viewDetails('${data}')" title="View">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-primary" onclick="editSubmission('${data}')" title="Edit">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteSubmission('${data}')" title="Delete">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>`;
+            }
+          }
+        ]
+      });
+      
+      // Global search functionality
+      $('#globalSearch').on('keyup', function() {
+        dataTable.search(this.value).draw();
+      });
+    }
+    
+    async function fetchAllSubmissions() {
+      try {
+        $('#submissionsTable').addClass('loading');
+        const res = await fetch(`${API_URL}/getall`);
+        const data = await res.json();
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid data format received');
+        }
+        
+        submissionsData = data;
+        updateDataTable(data);
+        updateStats(data);
+        $('#submissionsTable').removeClass('loading');
+      } catch (error) {
+        console.error('Error fetching all submissions:', error);
+        showAlert('danger', 'Failed to fetch submissions. Please try again.');
+        $('#submissionsTable').removeClass('loading');
+      }
+    }
+    
+    function updateDataTable(data) {
+      dataTable.clear();
+      if (data && data.length > 0) {
+        dataTable.rows.add(data).draw();
+      } else {
+        dataTable.draw();
+      }
+    }
+    
+    function updateStats(data) {
+      // Total submissions
+      document.getElementById('totalSubmissions').textContent = data.length;
+      
+      // Average score
+      const avgScore = data.reduce((sum, sub) => sum + (sub.percentage || 0), 0) / data.length;
+      document.getElementById('avgScore').textContent = avgScore.toFixed(1) + '%';
+      
+      // Active tests (status = 'inprogress')
+      const activeTests = data.filter(sub => sub.status === 'inprogress').length;
+      document.getElementById('activeTests').textContent = activeTests;
+      
+      // Unique users
+      const uniqueUsers = new Set(data.map(sub => sub.userId)).size;
+      document.getElementById('uniqueUsers').textContent = uniqueUsers;
+    }
+    
+    function applyFilters() {
+      const userId = document.getElementById('userIdFilter').value.trim().toLowerCase();
+      const mcqTypeId = document.getElementById('mcqTypeIdFilter').value.trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const dateFrom = document.getElementById('dateFromFilter').value;
+      const dateTo = document.getElementById('dateToFilter').value;
+      const scoreRange = document.getElementById('scoreRangeFilter').value;
+      
+      let filteredData = [...submissionsData];
+      
+      // Apply filters
+      if (userId) {
+        filteredData = filteredData.filter(sub => 
+          sub.userId.toLowerCase().includes(userId)
+        );
+      }
+      
+      if (mcqTypeId) {
+        filteredData = filteredData.filter(sub => 
+          sub.mcqTypeId.toLowerCase().includes(mcqTypeId)
+        );
+      }
+      
+      if (status) {
+        filteredData = filteredData.filter(sub => sub.status === status);
+      }
+      
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        filteredData = filteredData.filter(sub => new Date(sub.submittedAt) >= fromDate);
+      }
+      
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setDate(toDate.getDate() + 1); // Include the entire end day
+        filteredData = filteredData.filter(sub => new Date(sub.submittedAt) < toDate);
+      }
+      
+      if (scoreRange) {
+        const [min, max] = scoreRange.split('-').map(Number);
+        filteredData = filteredData.filter(sub => {
+          const percentage = sub.percentage || 0;
+          return percentage >= min && percentage <= max;
+        });
+      }
+      
+      updateDataTable(filteredData);
+    }
+    
+    function resetFilters() {
+      document.getElementById('userIdFilter').value = '';
+      document.getElementById('mcqTypeIdFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('dateFromFilter').value = '';
+      document.getElementById('dateToFilter').value = '';
+      document.getElementById('scoreRangeFilter').value = '';
+      
+      // Reset to current month
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      document.getElementById('dateFromFilter').valueAsDate = firstDay;
+      document.getElementById('dateToFilter').valueAsDate = today;
+      
+      updateDataTable(submissionsData);
+    }
+    
+    async function viewDetails(id) {
+      try {
+        const submission = submissionsData.find(sub => sub._id === id);
+        if (!submission) {
+          throw new Error('Submission not found');
+        }
+        
+        // Format the details for display
+        const detailsHtml = `
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Test Information</h5>
+              <table class="table table-bordered">
+                <tr>
+                  <th>User ID</th>
+                  <td>${submission.userId}</td>
+                </tr>
+                <tr>
+                  <th>MCQ Type ID</th>
+                  <td>${submission.mcqTypeId}</td>
+                </tr>
+                <tr>
+                  <th>Submitted At</th>
+                  <td>${new Date(submission.submittedAt).toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <th>Status</th>
+                  <td><span class="badge ${submission.status === 'completed' ? 'badge-success' : 'badge-primary'}">${submission.status}</span></td>
+                </tr>
+                <tr>
+                  <th>Activity Status</th>
+                  <td><span class="badge ${submission.activityStatus === 'active' ? 'badge-success' : 'badge-warning'}">${submission.activityStatus}</span></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h5>Performance Metrics</h5>
+              <table class="table table-bordered">
+                <tr>
+                  <th>Total Questions</th>
+                  <td>${submission.noofquestions}</td>
+                </tr>
+                <tr>
+                  <th>Attended Questions</th>
+                  <td>${submission.attendedquestions}</td>
+                </tr>
+                <tr>
+                  <th>Correct Answers</th>
+                  <td>${submission.noofcorrecctquestions}</td>
+                </tr>
+                <tr>
+                  <th>Wrong Answers</th>
+                  <td>${submission.noofwrongquestions}</td>
+                </tr>
+                <tr>
+                  <th>Score</th>
+                  <td>
+                    <div class="progress">
+                      <div class="progress-bar" role="progressbar" style="width: ${submission.percentage}%" 
+                        aria-valuenow="${submission.percentage}" aria-valuemin="0" aria-valuemax="100">${submission.percentage}%
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Duration</th>
+                  <td>${Math.floor(submission.durationInSeconds / 60)}m ${submission.durationInSeconds % 60}s</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <canvas id="performanceChart" height="150"></canvas>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('detailsModalBody').innerHTML = detailsHtml;
+        
+        // Initialize chart
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Total', 'Attended', 'Correct', 'Wrong'],
+            datasets: [{
+              label: 'Questions',
+              data: [
+                submission.noofquestions,
+                submission.attendedquestions,
+                submission.noofcorrecctquestions,
+                submission.noofwrongquestions
+              ],
+              backgroundColor: [
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
+              ],
+              borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+        modal.show();
+      } catch (error) {
+        console.error('Error viewing details:', error);
+        showAlert('danger', 'Failed to load submission details.');
+      }
+    }
+    
+    function editSubmission(id) {
+      const submission = submissionsData.find(sub => sub._id === id);
+      if (!submission) {
+        showAlert('danger', 'Submission not found.');
+        return;
+      }
+      
+      // Populate form
+      document.getElementById('editId').value = submission._id;
+      document.getElementById('editUserId').value = submission.userId;
+      document.getElementById('editMcqTypeId').value = submission.mcqTypeId;
+      document.getElementById('editNoOfQuestions').value = submission.noofquestions;
+      document.getElementById('editAttendedQuestions').value = submission.attendedquestions;
+      document.getElementById('editCorrectQuestions').value = submission.noofcorrecctquestions;
+      document.getElementById('editWrongQuestions').value = submission.noofwrongquestions;
+      document.getElementById('editPercentage').value = submission.percentage;
+      document.getElementById('editDuration').value = submission.durationInSeconds;
+      document.getElementById('editStatus').value = submission.status;
+      document.getElementById('editActivityStatus').value = submission.activityStatus;
+      
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('editModal'));
+      modal.show();
+    }
+    
+    async function saveChanges() {
+      const id = document.getElementById('editId').value;
+      const updatedData = {
+        userId: document.getElementById('editUserId').value,
+        mcqTypeId: document.getElementById('editMcqTypeId').value,
+        noofquestions: parseInt(document.getElementById('editNoOfQuestions').value),
+        attendedquestions: parseInt(document.getElementById('editAttendedQuestions').value),
+        noofcorrecctquestions: parseInt(document.getElementById('editCorrectQuestions').value),
+        noofwrongquestions: parseInt(document.getElementById('editWrongQuestions').value),
+        percentage: parseFloat(document.getElementById('editPercentage').value),
+        durationInSeconds: parseInt(document.getElementById('editDuration').value),
+        status: document.getElementById('editStatus').value,
+        activityStatus: document.getElementById('editActivityStatus').value
+      };
+      
+      try {
+        const res = await fetch(`${API_URL}/update/submission${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+        
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+        
+        // Update local data and refresh table
+        const index = submissionsData.findIndex(sub => sub._id === id);
+        if (index !== -1) {
+          submissionsData[index] = { ...submissionsData[index], ...updatedData };
+          updateDataTable(submissionsData);
+          updateStats(submissionsData);
+        }
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+        modal.hide();
+        
+        showAlert('success', 'Submission updated successfully!');
+      } catch (error) {
+        console.error('Error updating submission:', error);
+        showAlert('danger', 'Failed to update submission. Please try again.');
+      }
+    }
+    
+    async function deleteSubmission(id) {
+      if (!confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+        
+        // Remove from local data and refresh table
+        submissionsData = submissionsData.filter(sub => sub._id !== id);
+        updateDataTable(submissionsData);
+        updateStats(submissionsData);
+        
+        showAlert('success', 'Submission deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting submission:', error);
+        showAlert('danger', 'Failed to delete submission. Please try again.');
+      }
+    }
+    
+    function exportToCSV() {
+      const filteredData = dataTable.rows({ search: 'applied' }).data().toArray();
+      
+      if (filteredData.length === 0) {
+        showAlert('warning', 'No data to export.');
+        return;
+      }
+      
+      // Prepare CSV data
+      const csvData = filteredData.map(sub => ({
+        ID: sub._id,
+        'User ID': sub.userId,
+        'MCQ Type ID': sub.mcqTypeId,
+        'Total Questions': sub.noofquestions,
+        'Attended Questions': sub.attendedquestions,
+        'Correct Answers': sub.noofcorrecctquestions,
+        'Wrong Answers': sub.noofwrongquestions,
+        'Score (%)': sub.percentage,
+        'Duration (seconds)': sub.durationInSeconds,
+        Status: sub.status,
+        'Activity Status': sub.activityStatus,
+        'Submitted At': new Date(sub.submittedAt).toLocaleString()
+      }));
+      
+      // Convert to CSV
+      const csv = Papa.unparse(csvData);
+      
+      // Download CSV file
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `test_submissions_${new Date().toISOString().slice(0,10)}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    function showAlert(type, message) {
+      const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3" role="alert" style="z-index: 9999;">
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', alertHtml);
+      
+      // Auto dismiss after 5 seconds
+      setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+          bootstrap.Alert.getInstance(alert).close();
+        }
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

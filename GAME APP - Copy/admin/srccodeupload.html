@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Source Code</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f8f9fa;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    form {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .multi-upload {
+      background: #28a745;
+    }
+
+    .multi-upload:hover {
+      background: #1e7e34;
+    }
+
+    pre {
+      background: #eee;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Upload Source Code(s)</h1>
+  <p style="text-align:center;">Base API: <b>http://localhost:5000/api/srcocdes</b></p>
+
+  <form id="uploadForm">
+    <label>Project Name:</label>
+    <input type="text" id="name" placeholder="Enter project name" required>
+
+    <label>Description:</label>
+    <textarea id="description" rows="3" placeholder="Enter short description"></textarea>
+
+    <label>Source Code:</label>
+    <textarea id="srcCode" rows="5" placeholder="Paste your source code here" required></textarea>
+
+    <label>Language:</label>
+    <select id="language" required>
+      <option value="HTML">HTML</option>
+      <option value="CSS">CSS</option>
+      <option value="JavaScript">JavaScript</option>
+      <option value="Python">Python</option>
+      <option value="Java">Java</option>
+      <option value="C++">C++</option>
+      <option value="C">C</option>
+      <option value="PHP">PHP</option>
+      <option value="React">React</option>
+      <option value="Other" selected>Other</option>
+    </select>
+
+    <label>Image URLs (comma separated):</label>
+    <input type="text" id="images" placeholder="e.g. img1.png, img2.png">
+
+    <label>Price (₹):</label>
+    <input type="number" id="price" value="0">
+
+    <button type="submit">Upload Single</button>
+    <button type="button" id="uploadMultiple" class="multi-upload">Upload Multiple</button>
+  </form>
+
+  <pre id="responseBox"></pre>
+
+  <script>
+    const baseApi = "https://gameappbackend-i8zv.onrender.com/api/sourcecodes";
+
+    const form = document.getElementById("uploadForm");
+    const responseBox = document.getElementById("responseBox");
+    const uploadMultipleBtn = document.getElementById("uploadMultiple");
+
+    // 🟢 Single Upload
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const sourceData = {
+        name: document.getElementById("name").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        srcCode: document.getElementById("srcCode").value.trim(),
+        language: document.getElementById("language").value,
+        images: document.getElementById("images").value
+          ? document.getElementById("images").value.split(",").map(i => i.trim())
+          : [],
+        price: Number(document.getElementById("price").value)
+      };
+
+      try {
+        const res = await fetch(baseApi, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(sourceData)
+        });
+
+        const data = await res.json();
+        responseBox.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        responseBox.textContent = `Error: ${err.message}`;
+      }
+    });
+
+    // 🟢 Multiple Upload
+    uploadMultipleBtn.addEventListener("click", async () => {
+      // Example multiple uploads
+      const multipleData = [
+        {
+          name: "Login Page",
+          description: "Simple login form using HTML & CSS",
+          srcCode: "<html><body>Login Form</body></html>",
+          language: "HTML",
+          images: ["login1.png"],
+          price: 0
+        },
+        {
+          name: "ToDo App",
+          description: "JavaScript ToDo project",
+          srcCode: "console.log('ToDo App');",
+          language: "JavaScript",
+          images: ["todo.png"],
+          price: 100
+        }
+      ];
+
+      try {
+        const res = await fetch(baseApi, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(multipleData)
+        });
+
+        const data = await res.json();
+        responseBox.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        responseBox.textContent = `Error: ${err.message}`;
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCQ Submission Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#3b82f6',
+              600: '#2563eb',
+            },
+            dark: {
+              800: '#1e293b',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Top Navigation Bar -->
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 flex items-center">
+            <i class="fas fa-graduation-cap text-primary-600 text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-gray-800">ExamPortal</span>
+          </div>
+        </div>
+        <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <div class="ml-3 relative" id="user-dropdown">
+            <div class="flex items-center space-x-2 cursor-pointer">
+              <div class="text-right">
+                <p class="text-sm font-medium text-gray-700" id="user-name">Loading...</p>
+                <p class="text-xs text-gray-500" id="user-email">user@example.com</p>
+              </div>
+              <div class="relative">
+                <img class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center" 
+                     id="user-avatar" 
+                     src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff" 
+                     alt="User avatar">
+                <span class="absolute bottom-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-green-400"></span>
+              </div>
+              <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+            </div>
+            
+            <!-- Dropdown menu -->
+            <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-10" 
+                 id="dropdown-menu">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-user mr-2"></i> Profile
+              </a>
+              <a href="../settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-cog mr-2"></i> Settings
+              </a>
+              <div class="border-t border-gray-200"></div>
+              <a href="../index.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="logout-btn">
+                <i class="fas fa-sign-out-alt mr-2"></i> Sign out
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">My Exam Submissions</h1>
+        <div class="flex items-center mt-2">
+          <span class="text-gray-600 mr-2">User ID:</span>
+          <span id="userId" class="font-medium text-gray-800 bg-gray-100 px-2 py-1 rounded text-sm"></span>
+          <span class="mx-2 text-gray-400">|</span>
+          <span class="text-gray-600 mr-2">Member since:</span>
+          <span id="member-since" class="font-medium text-gray-800"></span>
+        </div>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <div class="relative">
+          <input type="text" id="searchInput" placeholder="Search exams..." 
+                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-full md:w-64">
+          <div class="absolute left-3 top-2.5 text-gray-400">
+            <i class="fas fa-search"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-primary-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Total Exams Taken</p>
+            <h3 id="total-exams" class="text-2xl font-bold text-gray-800 mt-1">0</h3>
+          </div>
+          <div class="p-3 rounded-full bg-primary-50 text-primary-500">
+            <i class="fas fa-clipboard-list text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500">This month</span>
+            <span id="monthly-exams" class="font-medium text-primary-600">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Highest Score</p>
+            <h3 id="highest-score" class="text-2xl font-bold text-gray-800 mt-1">0%</h3>
+          </div>
+          <div class="p-3 rounded-full bg-green-50 text-green-500">
+            <i class="fas fa-trophy text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500">Average</span>
+            <span id="average-score" class="font-medium text-green-600">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Fastest Completion</p>
+            <h3 id="fastest-exam" class="text-2xl font-bold text-gray-800 mt-1">0s</h3>
+          </div>
+          <div class="p-3 rounded-full bg-yellow-50 text-yellow-500">
+            <i class="fas fa-stopwatch text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500">Average</span>
+            <span id="average-duration" class="font-medium text-yellow-600">0s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Total Fees Paid</p>
+            <h3 id="total-fees" class="text-2xl font-bold text-gray-800 mt-1">₹0</h3>
+          </div>
+          <div class="p-3 rounded-full bg-purple-50 text-purple-500">
+            <i class="fas fa-rupee-sign text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-500">This month</span>
+            <span id="monthly-fees" class="font-medium text-purple-600">₹0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Chart (Placeholder) -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Performance Trend</h3>
+        <div class="flex space-x-2">
+          <select class="border border-gray-300 rounded-md text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option selected>Last 6 months</option>
+            <option>All time</option>
+          </select>
+        </div>
+      </div>
+      <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400">
+        <div class="text-center">
+          <i class="fas fa-chart-line text-4xl mb-2"></i>
+          <p>Performance chart will be displayed here</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Table Section -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <!-- Filters -->
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h3 class="text-lg font-medium text-gray-900 mb-2 sm:mb-0">Exam History</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <select id="statusFilter" class="border border-gray-300 rounded-md text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <option value="all">All Statuses</option>
+              <option value="completed">Completed</option>
+              <option value="in-progress">In Progress</option>
+              <option value="failed">Failed</option>
+            </select>
+            <select id="dateFilter" class="border border-gray-300 rounded-md text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+            <select id="percentageFilter" class="border border-gray-300 rounded-md text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <option value="all">All Scores</option>
+              <option value="90-100">90-100%</option>
+              <option value="75-89">75-89%</option>
+              <option value="50-74">50-74%</option>
+              <option value="0-49">0-49%</option>
+            </select>
+            <button id="resetFilters" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-1 rounded-md transition duration-200">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
+            <tr>
+              <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                <div class="flex justify-center items-center space-x-2">
+                  <i class="fas fa-circle-notch fa-spin text-primary-500"></i>
+                  <span>Loading exam data...</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p id="paginationInfo" class="text-sm text-gray-700">
+              Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button id="prevPage" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                <span class="sr-only">Previous</span>
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div id="pageNumbers" class="flex">
+                <!-- Page numbers will be inserted here -->
+              </div>
+              <button id="nextPage" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                <span class="sr-only">Next</span>
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+
+  // ======================
+// SECURITY: BLOCK DEVELOPER TOOLS
+// ======================
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    showAdminBlock();
+    return false;
+});
+
+document.addEventListener('keydown', function(e) {
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+    if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C')
+    ) {
+        e.preventDefault();
+        showAdminBlock();
+        return false;
+    }
+});
+
+// Function to show admin block message
+function showAdminBlock() {
+    const adminBlock = document.getElementById('adminBlock');
+    adminBlock.style.display = 'flex';
+    setTimeout(() => {
+        adminBlock.style.display = 'none';
+    }, 3000);
+}
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get elements
+        const profilePicture = document.getElementById('userImage');
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const signOutBtn = document.getElementById('sign-out-btn');
+        const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+
+        // Get user data from localStorage
+        const user = JSON.parse(localStorage.getItem('user'));
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+        // Check if user is logged in
+        if (!user || isLoggedIn !== 'true') {
+            window.location.href = '../index.html';
+            return;
+        }
+
+        // OPTIONAL: Set user data to DOM elements if logged in
+        if (profileName && profileEmail && user) {
+            profileName.textContent = user.name || 'User';
+            profileEmail.textContent = user.email || 'Email not found';
+        }
+
+        // OPTIONAL: Add sign out functionality
+        if (signOutBtn) {
+            signOutBtn.addEventListener('click', function() {
+                localStorage.removeItem('user');
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'index.html';
+            });
+        }
+
+        if (sidebarLogoutBtn) {
+            sidebarLogoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('user');
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = '../Home.html';
+            });
+        }
+    });
+</script>
+
+  <script>
+    // Configuration
+    const itemsPerPage = 8;
+    let currentPage = 1;
+    let allSubmissions = [];
+    let filteredSubmissions = [];
+    let userData = {};
+
+    // DOM Elements
+    const userIdElement = document.getElementById('userId');
+    const userNameElement = document.getElementById('user-name');
+    const userEmailElement = document.getElementById('user-email');
+    const userAvatarElement = document.getElementById('user-avatar');
+    const memberSinceElement = document.getElementById('member-since');
+    const tableBody = document.getElementById('tableBody');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const percentageFilter = document.getElementById('percentageFilter');
+    const resetFilters = document.getElementById('resetFilters');
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    const pageNumbers = document.getElementById('pageNumbers');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const totalExamsElement = document.getElementById('total-exams');
+    const monthlyExamsElement = document.getElementById('monthly-exams');
+    const highestScoreElement = document.getElementById('highest-score');
+    const averageScoreElement = document.getElementById('average-score');
+    const fastestExamElement = document.getElementById('fastest-exam');
+    const averageDurationElement = document.getElementById('average-duration');
+    const totalFeesElement = document.getElementById('total-fees');
+    const monthlyFeesElement = document.getElementById('monthly-fees');
+    const userDropdown = document.getElementById('user-dropdown');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Helper Functions
+    function getLoggedInUser() {
+      const userString = localStorage.getItem('user');
+      if (userString) {
+        try {
+          const data = JSON.parse(userString);
+          return {
+            id: data._id || data.id || data.userId || data.userID || 'N/A',
+            name: data.name || data.username || 'User',
+            email: data.email || 'user@example.com',
+            createdAt: data.createdAt || new Date().toISOString()
+          };
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+          return {
+            id: 'Error',
+            name: 'Error',
+            email: 'error@example.com',
+            createdAt: new Date().toISOString()
+          };
+        }
+      }
+      return {
+        id: 'N/A',
+        name: 'Guest',
+        email: 'guest@example.com',
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatShortDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric'
+      });
+    }
+
+    function getStatusBadge(status) {
+      const statusMap = {
+        'completed': { color: 'green', text: 'Completed', icon: 'check-circle' },
+        'in-progress': { color: 'blue', text: 'In Progress', icon: 'spinner' },
+        'failed': { color: 'red', text: 'Failed', icon: 'times-circle' }
+      };
+      
+      const statusInfo = statusMap[status.toLowerCase()] || { color: 'gray', text: status, icon: 'question-circle' };
+      
+      return `
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${statusInfo.color}-100 text-${statusInfo.color}-800">
+          <i class="fas fa-${statusInfo.icon} mr-1"></i>
+          ${statusInfo.text}
+        </span>
+      `;
+    }
+
+    function getScoreBadge(percentage) {
+      let color = 'red';
+      if (percentage >= 90) color = 'green';
+      else if (percentage >= 75) color = 'blue';
+      else if (percentage >= 50) color = 'yellow';
+      
+      return `
+        <div class="flex items-center">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${color}-100 text-${color}-800 mr-2">
+            ${percentage}%
+          </span>
+          <div class="w-16 bg-gray-200 rounded-full h-1.5">
+            <div class="bg-${color}-500 h-1.5 rounded-full" style="width: ${percentage}%"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function calculateStatistics(submissions) {
+      if (submissions.length === 0) {
+        totalExamsElement.textContent = '0';
+        monthlyExamsElement.textContent = '0';
+        highestScoreElement.textContent = '0%';
+        averageScoreElement.textContent = '0%';
+        fastestExamElement.textContent = '0s';
+        averageDurationElement.textContent = '0s';
+        totalFeesElement.textContent = '₹0';
+        monthlyFeesElement.textContent = '₹0';
+        return;
+      }
+
+      // Total exams
+      totalExamsElement.textContent = submissions.length;
+
+      // Monthly exams
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthlyExams = submissions.filter(
+        sub => new Date(sub.submittedAt) >= thisMonth
+      ).length;
+      monthlyExamsElement.textContent = monthlyExams;
+
+      // Highest score
+      const highest = Math.max(...submissions.map(s => s.percentage));
+      highestScoreElement.textContent = `${highest}%`;
+
+      // Average score
+      const avgScore = submissions.reduce((sum, s) => sum + s.percentage, 0) / submissions.length;
+      averageScoreElement.textContent = `${Math.round(avgScore)}%`;
+
+      // Fastest exam
+      const fastest = Math.min(...submissions.map(s => s.durationInSeconds || 0));
+      fastestExamElement.textContent = `${fastest}s`;
+
+      // Average duration
+      const avgDur = submissions.reduce((sum, s) => sum + (s.durationInSeconds || 0), 0) / submissions.length;
+      averageDurationElement.textContent = `${Math.round(avgDur)}s`;
+
+      // Total fees
+      const totalFees = submissions.reduce((sum, s) => sum + (s.mcqTypeId?.entryFee || 0), 0);
+      totalFeesElement.textContent = `₹${totalFees}`;
+
+      // Monthly fees
+      const monthlyFees = submissions.filter(
+        sub => new Date(sub.submittedAt) >= thisMonth
+      ).reduce((sum, s) => sum + (s.mcqTypeId?.entryFee || 0), 0);
+      monthlyFeesElement.textContent = `₹${monthlyFees}`;
+    }
+
+    // Filter Functions
+    function applyFilters() {
+      filteredSubmissions = [...allSubmissions];
+
+      // Status filter
+      if (statusFilter.value !== 'all') {
+        filteredSubmissions = filteredSubmissions.filter(
+          sub => sub.status.toLowerCase() === statusFilter.value.toLowerCase()
+        );
+      }
+
+      // Date filter
+      if (dateFilter.value !== 'all') {
+        const now = new Date();
+        let startDate;
+
+        switch (dateFilter.value) {
+          case 'today':
+            startDate = new Date(now.setHours(0, 0, 0, 0));
+            break;
+          case 'week':
+            startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+            startDate.setHours(0, 0, 0, 0);
+            break;
+          case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+        }
+
+        filteredSubmissions = filteredSubmissions.filter(
+          sub => new Date(sub.submittedAt) >= startDate
+        );
+      }
+
+      // Percentage filter
+      if (percentageFilter.value !== 'all') {
+        const [min, max] = percentageFilter.value.split('-').map(Number);
+        filteredSubmissions = filteredSubmissions.filter(
+          sub => sub.percentage >= min && sub.percentage <= max
+        );
+      }
+
+      // Search filter
+      const searchTerm = searchInput.value.toLowerCase();
+      if (searchTerm) {
+        filteredSubmissions = filteredSubmissions.filter(sub => 
+          (sub.mcqTypeId?.name?.toLowerCase().includes(searchTerm)) || 
+          (sub.mcqTypeId?.description?.toLowerCase().includes(searchTerm)) ||
+          (sub.status.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      calculateStatistics(filteredSubmissions);
+      renderTable();
+      renderPagination();
+    }
+
+    // Render Functions
+    function renderTable() {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedSubmissions = filteredSubmissions.slice(startIndex, endIndex);
+
+      if (paginatedSubmissions.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+              <div class="flex flex-col items-center justify-center space-y-2">
+                <i class="fas fa-inbox text-4xl text-gray-300"></i>
+                <p class="text-lg font-medium">No submissions found</p>
+                <p class="text-sm">Try adjusting your search or filter criteria</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = paginatedSubmissions.map(submission => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600">
+                <i class="fas fa-clipboard-check"></i>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${submission.mcqTypeId?.name || 'Untitled Exam'}</div>
+                <div class="text-sm text-gray-500">${submission.mcqTypeId?.description ? submission.mcqTypeId.description.substring(0, 30) + (submission.mcqTypeId.description.length > 30 ? '...' : '') : 'No description'}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">₹${submission.mcqTypeId?.entryFee || 0} fee</div>
+            <div class="text-sm text-gray-500">${submission.noofcorrecctquestions}/${submission.noofquestions} correct</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            ${getScoreBadge(submission.percentage)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            ${getStatusBadge(submission.status)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            ${formatDate(submission.submittedAt)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button class="text-primary-600 hover:text-primary-900 mr-3" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="text-gray-600 hover:text-gray-900" title="Download Certificate">
+              <i class="fas fa-download"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
+      
+      // Update pagination info
+      const startItem = (currentPage - 1) * itemsPerPage + 1;
+      const endItem = Math.min(currentPage * itemsPerPage, filteredSubmissions.length);
+      paginationInfo.innerHTML = `
+        Showing <span class="font-medium">${startItem}</span> to <span class="font-medium">${endItem}</span> of <span class="font-medium">${filteredSubmissions.length}</span> results
+      `;
+
+      // Update pagination controls
+      prevPage.disabled = currentPage === 1;
+      nextPage.disabled = currentPage === totalPages;
+
+      // Generate page numbers
+      pageNumbers.innerHTML = '';
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      if (startPage > 1) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+        pageBtn.textContent = '1';
+        pageBtn.onclick = () => {
+          currentPage = 1;
+          renderTable();
+          renderPagination();
+        };
+        pageNumbers.appendChild(pageBtn);
+
+        if (startPage > 2) {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+          ellipsis.textContent = '...';
+          pageNumbers.appendChild(ellipsis);
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = `relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${i === currentPage ? 'bg-primary-50 text-primary-600 z-10' : 'bg-white text-gray-700'}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => {
+          currentPage = i;
+          renderTable();
+          renderPagination();
+        };
+        pageNumbers.appendChild(pageBtn);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+          ellipsis.textContent = '...';
+          pageNumbers.appendChild(ellipsis);
+        }
+
+        const pageBtn = document.createElement('button');
+        pageBtn.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
+        pageBtn.textContent = totalPages;
+        pageBtn.onclick = () => {
+          currentPage = totalPages;
+          renderTable();
+          renderPagination();
+        };
+        pageNumbers.appendChild(pageBtn);
+      }
+    }
+
+    function renderUserData() {
+      userNameElement.textContent = userData.name;
+      userEmailElement.textContent = userData.email;
+      userIdElement.textContent = userData.id;
+      memberSinceElement.textContent = formatShortDate(userData.createdAt);
+      
+      // Generate avatar if not available
+      const initials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+      userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=3b82f6&color=fff`;
+    }
+
+    // Event Listeners
+    searchInput.addEventListener('input', () => {
+      currentPage = 1;
+      applyFilters();
+    });
+
+    statusFilter.addEventListener('change', () => {
+      currentPage = 1;
+      applyFilters();
+    });
+
+    dateFilter.addEventListener('change', () => {
+      currentPage = 1;
+      applyFilters();
+    });
+
+    percentageFilter.addEventListener('change', () => {
+      currentPage = 1;
+      applyFilters();
+    });
+
+    resetFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      statusFilter.value = 'all';
+      dateFilter.value = 'all';
+      percentageFilter.value = 'all';
+      currentPage = 1;
+      applyFilters();
+    });
+
+    prevPage.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+        renderPagination();
+      }
+    });
+
+    nextPage.addEventListener('click', () => {
+      const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+        renderPagination();
+      }
+    });
+
+    // User dropdown toggle
+    userDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      dropdownMenu.classList.add('hidden');
+    });
+
+    // Logout handler
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Add your logout logic here
+      console.log('Logging out...');
+      localStorage.removeItem('user');
+      window.location.href = '../index.html'; // Redirect to login page
+    });
+
+    // Main Function
+    async function fetchMCQSubmissions() {
+      userData = getLoggedInUser();
+      renderUserData();
+
+      const url = `https://gameappbackend-i8zv.onrender.com/api/testsubmissions/loginbyuserid/${userData.id}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        allSubmissions = data;
+        filteredSubmissions = [...allSubmissions];
+
+        calculateStatistics(allSubmissions);
+        renderTable();
+        renderPagination();
+
+      } catch (error) {
+        console.error("Failed to fetch MCQ submission data:", error);
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+              <div class="flex flex-col items-center justify-center space-y-2">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-300"></i>
+                <p class="text-lg font-medium">Failed to load data</p>
+                <p class="text-sm">Please try again later</p>
+                <button onclick="fetchMCQSubmissions()" class="mt-2 px-4 py-2 bg-primary-100 text-primary-600 rounded-md hover:bg-primary-200 transition">
+                  <i class="fas fa-sync-alt mr-2"></i> Retry
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", fetchMCQSubmissions);
+  </script>
+</body>
+</html>

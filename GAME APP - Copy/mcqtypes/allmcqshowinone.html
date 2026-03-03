@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure MCQ Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .question-box {
+      transition: all 0.3s ease;
+    }
+    .question-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .option-label:hover {
+      background-color: #f0f7ff;
+    }
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    .gallery-nav-btn {
+      transition: all 0.2s ease;
+    }
+    .gallery-nav-btn:hover {
+      transform: scale(1.1);
+    }
+    .gallery-nav-btn:active {
+      transform: scale(0.95);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse {
+      animation: pulse 2s infinite;
+    }
+    .question-slide {
+      display: none;
+    }
+    .question-slide.active {
+      display: block;
+    }
+    #blockedMessage {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 9999;
+      color: white;
+      font-size: 2rem;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen p-4 md:p-5" onload="initQuiz()">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">MCQ Examination</h1>
+      <div class="flex justify-between items-center mb-2">
+        <div id="timer" class="text-lg font-medium text-gray-600 hidden">Time: <span class="text-blue-600">00:00</span></div>
+        <button id="submitBtn" class="hidden bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Submit Test
+        </button>
+      </div>
+      <div class="w-full bg-white rounded-full h-2.5">
+        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Blocked Message -->
+    <div id="blockedMessage">
+      <div class="text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <h2 class="text-3xl font-bold mb-4">ACCESS BLOCKED BY ADMIN</h2>
+        <p class="text-xl mb-6" id="blockedReason">Tab switching is not allowed during the exam.</p>
+        <p class="text-lg">You can continue with the exam in <span id="blockedCountdown" class="font-bold text-red-500">5</span> seconds</p>
+      </div>
+    </div>
+
+    <!-- Instruction Box -->
+    <div id="instructionBox" class="bg-white p-6 rounded-xl shadow-lg mb-8 border-2 border-blue-100 transform transition-all duration-300 hover:shadow-xl">
+      <h2 class="text-2xl font-bold mb-4 text-blue-700 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        Instructions
+      </h2>
+      <ul class="list-disc pl-5 mb-6 space-y-2 text-gray-700">
+        <li class="flex items-start"><span class="mr-2">•</span> Marks from the first-time submission will be considered final and evaluated based on the winning amount. Distribution of the winning amount is subject to admin approval.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Use only the mouse or a single finger for navigation. Using three fingers or multiple touch points will trigger automatic submission due to activity detection.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Do not switch tabs or use keyboard shortcuts during the exam.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> The test will be automatically submitted if any suspicious activity is detected.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Answer all questions carefully within the allotted time.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Fullscreen mode is recommended for a better exam experience, but it is not mandatory.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> The exam will be automatically submitted after 30 minutes.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Based on your result, the winning amount will be distributed by the site admin after the exam.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Pressing Ctrl+C or Ctrl+V or Alt tab will trigger auto-submission of the exam.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> After submitting the exam, please proceed to the Dashboard or the Exam Results & Winnings page.</li>
+        <li class="flex items-start"><span class="mr-2">•</span> Use of I AM NEO shortcut keys (Alt+Shift+Q, Alt+Shift+A, Alt+Shift+T, Alt+Shift+N, Alt+Shift+M, Alt+Shift+S, Ctrl+V, Alt+C) is strictly prohibited and will result in a 10-minute block.</li>
+      </ul>
+
+      <div class="flex flex-col md:flex-row items-center justify-between bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div class="flex items-center mb-3 md:mb-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-gray-700">Test will start in <span id="countdown" class="font-bold text-blue-600 text-xl">90</span> seconds...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info Box -->
+    <div id="userInfo" class="hidden bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+      <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        Test Information
+      </h2>
+      <div id="userInfoContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+        <!-- Filled by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="hidden">
+      <!-- Gallery Navigation -->
+      <div class="flex justify-between items-center mb-6">
+        <button id="prevBtn" onclick="navigateQuestion(-1)" class="gallery-nav-btn bg-white p-3 rounded-full shadow-md text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <div class="text-center">
+          <span id="currentQuestion" class="text-xl font-bold text-blue-600">1</span>
+          <span class="text-gray-500"> / </span>
+          <span id="totalQuestions" class="text-gray-600">0</span>
+        </div>
+        
+        <button id="nextBtn" onclick="navigateQuestion(1)" class="gallery-nav-btn bg-white p-3 rounded-full shadow-md text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quiz Form (Gallery View) -->
+      <form id="quizForm" class="relative">
+        <div id="questionsContainer" class="overflow-hidden relative">
+          <!-- Questions will be rendered here one by one -->
+        </div>
+      </form>
+
+      <!-- Question Navigation Dots -->
+      <div id="questionDots" class="flex justify-center mt-6 space-x-2">
+        <!-- Dots will be added here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get user data from localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+      // Check if user is not logged in
+      if (!user || isLoggedIn !== 'true') {
+        // Redirect to Home.html in the same folder
+        window.location.href = '../Home.html';
+        return;
+      }
+    });
+  </script>
+
+  <script>
+    const API_BASE = 'https://gameappbackend-i8zv.onrender.com';
+    const SUBMIT_API = `${API_BASE}/api/testsubmissions/api/testsubmissions/api/submit/test`;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const mcqTypeId = sessionStorage.getItem('mcqTypeId');
+    const userId = sessionStorage.getItem('userId');
+
+    // For 30-minute auto-submit
+    const TEST_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+    let questions = [];
+    let startTime = null;
+    let submitted = false;
+    let isBlocked = false;
+    let blockedTimeout;
+    let isFullscreen = false; 
+    let currentQuestionIndex = 0;
+    let timerInterval;
+    let questionStates = [];
+    let autoSubmitTimeout; // For the 30-minute auto-submit
+    let lastFocusTime = Date.now();
+    let focusCheckInterval;
+
+    // --- UPDATED SECURITY PRE-CHECK: DATE, OS & SUCCESS FEEDBACK ---
+async function performSecurityPreCheck() {
+    const platform = window.navigator.platform.toLowerCase();
+    const isWindows = platform.includes('win');
+    
+    // Date/Time Check: Validating against January 20, 2026
+    const currentDateTime = new Date();
+    const expiryDate = new Date('2026-02-01T23:59:59'); 
+    const isTimeValid = currentDateTime < expiryDate;
+
+    if (!isWindows || !isTimeValid) {
+        document.body.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-gray-900 text-white p-6">
+                <div class="max-w-md w-full bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-red-500 text-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-6"></i>
+                    <h1 class="text-2xl font-bold mb-4">SYSTEM INCOMPATIBLE</h1>
+                    <div class="text-left space-y-4 text-gray-300">
+                        ${!isWindows ? `
+                            <p class="flex items-center text-red-400">
+                                <i class="fas fa-times-circle mr-2"></i> 
+                                <strong>OS Error:</strong> This exam can only be taken on Windows.
+                            </p>` : ''}
+                        ${!isTimeValid ? `
+                            <p class="flex items-center text-red-400">
+                                <i class="fas fa-times-circle mr-2"></i> 
+                                <strong>Time Error:</strong> Session expired or system time mismatch.
+                            </p>` : ''}
+                    </div>
+                    <button onclick="window.location.href='technicalmcqs.html'" class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all">
+                        Return to Dashboard
+                    </button>
+                </div>
+            </div>`;
+        return false;
+    }
+
+    // If Windows is verified, show the success indicator
+    showVerificationToast();
+    return true;
+}
+
+function showVerificationToast() {
+    const toast = document.createElement('div');
+    toast.className = "fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl z-[10001] flex items-center gap-3 animate-bounce";
+    toast.innerHTML = `<i class="fas fa-check-circle"></i> <span>OS Verified Successfully: Windows Detected</span>`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+
+// Update initQuiz to ensure these run first
+function initQuiz() {
+
+        instructionCountdown();
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        questionStates = questions.map(() => ({ answered: false }));
+        focusCheckInterval = setInterval(checkFocus, 1000);
+        setupRefreshPrevention();
+        setupShortcutDetection();
+ 
+}
+
+    function setupShortcutDetection() {
+      document.addEventListener('keydown', function(e) {
+        if (submitted) return;
+        
+        // Check for I AM NEO shortcuts
+        if (isNeoShortcut(e)) {
+          e.preventDefault();
+          e.stopPropagation();
+          showBlockedScreen("I AM NEO shortcut keys are not working here. Please do the exam properly.", 600);
+          return false;
+        }
+      });
+    }
+
+    function isNeoShortcut(e) {
+      // I AM NEO shortcut keys to detect
+      const neoShortcuts = [
+        // Alt + Shift + Q - Solve Portal MCQs & Coding Problems
+        { alt: true, shift: true, key: 'q' },
+        // Alt + Shift + A - Solve Questions Using AI
+        { alt: true, shift: true, key: 'a' },
+        // Alt + Shift + T - Type Code Into Editor
+        { alt: true, shift: true, key: 't' },
+        // Alt + Shift + N - Solve NPTEL Quiz
+        { alt: true, shift: true, key: 'n' },
+        // Alt + Shift + M - Solve MCQs By Selecting
+        { alt: true, shift: true, key: 'm' },
+        // Alt + Shift + S - Search Answers Using AI
+        { alt: true, shift: true, key: 's' },
+        // Ctrl + V - Paste Content Even When Restricted
+        { ctrl: true, key: 'v' },
+        // Alt + C - Open AI Chatbot Assistant
+        { alt: true, key: 'c' }
+      ];
+
+      return neoShortcuts.some(shortcut => {
+        return (shortcut.alt === undefined || shortcut.alt === e.altKey) &&
+               (shortcut.shift === undefined || shortcut.shift === e.shiftKey) &&
+               (shortcut.ctrl === undefined || shortcut.ctrl === e.ctrlKey) &&
+               (shortcut.key.toLowerCase() === e.key.toLowerCase());
+      });
+    }
+
+    function setupRefreshPrevention() {
+      // Prevent F5, Ctrl+R, Ctrl+Shift+R, etc.
+      document.addEventListener('keydown', function(e) {
+        // Refresh prevention - F5, Ctrl+R, Ctrl+Shift+R
+        if ((e.key === 'F5' || 
+             (e.ctrlKey && e.key === 'r') || 
+             (e.ctrlKey && e.shiftKey && e.key === 'R') ||
+             (e.key === 'F11')) && !submitted) {
+          e.preventDefault();
+          e.stopPropagation();
+          showBlockedScreen("Page refresh is not allowed during the exam.");
+          return false;
+        }
+      });
+
+      // Prevent right-click context menu (which might have refresh option)
+      document.addEventListener('contextmenu', function(e) {
+        if (!submitted) {
+          e.preventDefault();
+          showBlockedScreen("Right-click is disabled during the exam.");
+          return false;
+        }
+      });
+
+      // Prevent browser's built-in refresh button
+      window.addEventListener('beforeunload', function(e) {
+        if (!submitted) {
+          // This will show a confirmation dialog in some browsers
+          e.preventDefault();
+          e.returnValue = 'Are you sure you want to leave? The exam will be submitted if you leave this page.';
+          return e.returnValue;
+        }
+      });
+
+      // Additional prevention for mobile refresh gestures
+      let touchStartY = 0;
+      document.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: false });
+
+      document.addEventListener('touchmove', function(e) {
+        // Detect pull-to-refresh gesture
+        const touchY = e.touches[0].clientY;
+        const diff = touchY - touchStartY;
+        
+        if (diff > 100 && window.scrollY <= 0 && !submitted) {
+          e.preventDefault();
+          showBlockedScreen("Pull-to-refresh is disabled during the exam.");
+          return false;
+        }
+      }, { passive: false });
+    }
+
+    function checkFocus() {
+      if (document.hasFocus()) {
+        lastFocusTime = Date.now();
+      } else {
+        // If the window doesn't have focus for more than 1 second, trigger blocked screen
+        if (Date.now() - lastFocusTime > 1000 && !isBlocked && !submitted) {
+          showBlockedScreen("Tab switching is not allowed during the exam.");
+        }
+      }
+    }
+
+    function showBlockedScreen(reason = "Tab switching is not allowed during the exam.", countdownSeconds = 300) {
+      if (isBlocked || submitted) return;
+      
+      isBlocked = true;
+      document.getElementById('blockedMessage').style.display = 'flex';
+      document.getElementById('blockedReason').textContent = reason;
+      
+      let countdown = countdownSeconds;
+      document.getElementById('blockedCountdown').textContent = countdown;
+      
+      blockedTimeout = setInterval(() => {
+        countdown--;
+        document.getElementById('blockedCountdown').textContent = countdown;
+        
+        if (countdown <= 0) {
+          clearInterval(blockedTimeout);
+          document.getElementById('blockedMessage').style.display = 'none';
+          isBlocked = false;
+          lastFocusTime = Date.now();
+        }
+      }, 1000);
+    }
+
+    function requestFullscreen() {
+      const elem = document.documentElement;
+      if (document.fullscreenEnabled || document.webkitFullscreenEnabled || 
+          document.mozFullScreenEnabled || document.msFullscreenEnabled) {
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen().then(() => {
+            isFullscreen = true;
+            updateFullscreenStatus();
+          }).catch(err => {
+            console.warn("Fullscreen request denied or failed:", err);
+            isFullscreen = false;
+            updateFullscreenStatus();
+          });
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+          isFullscreen = true;
+          updateFullscreenStatus();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+          isFullscreen = true;
+          updateFullscreenStatus();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+          isFullscreen = true;
+          updateFullscreenStatus();
+        }
+      } else {
+        console.warn("Fullscreen not supported by this browser.");
+        isFullscreen = false;
+        updateFullscreenStatus();
+      }
+    }
+
+    function exitFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      isFullscreen = false;
+      updateFullscreenStatus();
+    }
+
+    function updateFullscreenStatus() {
+      const fullscreenStatusElement = document.querySelector('#userInfoContent div:nth-child(4) p:nth-child(2)');
+      if (fullscreenStatusElement) {
+        fullscreenStatusElement.textContent = isFullscreen ? 'Active' : 'Inactive';
+      }
+    }
+
+    // handleVisibilityChange now shows blocked screen instead of submitting
+    function handleVisibilityChange() {
+      if (document.visibilityState !== 'visible' && !submitted && !isBlocked) {
+        showBlockedScreen("Tab switching is not allowed during the exam Read The instructions before.");
+      }
+    }
+
+    function instructionCountdown() {
+      let seconds = 90;
+      const countdownElem = document.getElementById('countdown');
+
+      const interval = setInterval(() => {
+        seconds--;
+        countdownElem.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(interval);
+          // Automatically start the quiz when countdown finishes
+          startQuiz();
+        }
+      }, 1000);
+    }
+
+    async function startQuiz() {
+      document.getElementById('instructionBox').classList.add('hidden');
+      document.getElementById('userInfo').classList.remove('hidden');
+      document.getElementById('quizContainer').classList.remove('hidden');
+      document.getElementById('submitBtn').classList.remove('hidden');
+      document.getElementById('timer').classList.remove('hidden');
+
+      document.getElementById('userInfoContent').innerHTML = `
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <p class="text-sm text-blue-800 font-medium">User ID</p>
+          <p class="text-lg font-semibold text-gray-800">${userId}</p>
+        </div>
+        <div class="bg-indigo-50 p-4 rounded-lg">
+          <p class="text-sm text-indigo-800 font-medium">Test Type</p>
+          <p class="text-lg font-semibold text-gray-800">MCQ #${mcqTypeId}</p>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+          <p class="text-sm text-green-800 font-medium">Status</p>
+          <p class="text-lg font-semibold text-gray-800">In Progress</p>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <p class="text-sm text-purple-800 font-medium">Fullscreen</p>
+          <p class="text-lg font-semibold text-gray-800">Inactive</p>
+        </div>
+      `;
+
+      startTime = Date.now();
+      startTimer();
+      await loadQuestions();
+      
+      // Set up the 30-minute auto-submit
+      autoSubmitTimeout = setTimeout(() => {
+        if (!submitted) {
+          submitTest(false);
+        }
+      }, TEST_DURATION);
+      
+      // Attempt fullscreen
+      requestFullscreen();
+
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('portrait').catch(() => {});
+      }
+
+      document.addEventListener('contextmenu', preventContextMenu);
+    }
+
+    function preventContextMenu(e) {
+      e.preventDefault();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerHTML = `Time: <span class="text-blue-600">${minutes}:${seconds}</span>`;
+      }, 1000);
+    }
+
+    async function loadQuestions() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/mcqquestion/mcqquestion/${mcqTypeId}`);
+        questions = resp.ok ? await resp.json() : [];
+        questionStates = questions.map(() => ({ answered: false }));
+        renderQuestions();
+      } catch (error) {
+        console.error("Error loading questions:", error);
+        questions = [];
+        questionStates = [];
+      }
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      const dotsContainer = document.getElementById('questionDots');
+      
+      container.innerHTML = '';
+      dotsContainer.innerHTML = '';
+      
+      document.getElementById('totalQuestions').textContent = questions.length;
+      
+      if (questions.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-8 rounded-xl text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">No Questions Available</h3>
+            <p class="text-gray-500">There are no questions for this test.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      questions.forEach((q, i) => {
+        // Create question element
+        const questionDiv = document.createElement('div');
+        questionDiv.className = `question-slide w-full ${i === 0 ? 'active' : ''}`;
+        questionDiv.dataset.index = i;
+        
+        questionDiv.innerHTML = `
+          <div class="question-box bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100">
+            <div class="flex justify-between items-start mb-4">
+              <p class="font-bold text-xl md:text-2xl text-gray-800">Question ${i + 1}</p>
+              <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">${q.difficulty || 'Medium'}</span>
+            </div>
+            
+            <p class="text-lg md:text-xl mb-6 text-gray-700">${q.question}</p>
+            
+            <div class="space-y-3">
+              ${Object.entries(q.options).map(([key, val]) => `
+                <label class="option-label flex items-center space-x-4 p-3 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer transition-all duration-200">
+                  <input type="radio" name="q${i}" value="${key}" class="h-5 w-5 text-blue-600 focus:ring-blue-500">
+                  <span class="flex-1 text-gray-800">
+                    <span class="font-semibold text-blue-600">${key}:</span> ${val}
+                  </span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(questionDiv);
+        
+        // Create navigation dot
+        const dot = document.createElement('button');
+        dot.className = `w-3 h-3 rounded-full ${i === 0 ? 'bg-blue-600' : 'bg-gray-300'} transition-colors duration-200`;
+        dot.dataset.index = i;
+        dot.onclick = () => goToQuestion(i);
+        dotsContainer.appendChild(dot);
+      });
+      
+      // Update navigation buttons
+      updateNavigationButtons();
+      
+      // Add event listeners to options to track answered questions
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          const questionIndex = parseInt(this.name.replace('q', ''));
+          questionStates[questionIndex].answered = true;
+          updateQuestionDot(questionIndex);
+          updateProgressBar();
+        });
+      });
+      
+      updateProgressBar();
+    }
+
+    function navigateQuestion(direction) {
+      const newIndex = currentQuestionIndex + direction;
+      if (newIndex >= 0 && newIndex < questions.length) {
+        goToQuestion(newIndex);
+      }
+    }
+
+    function goToQuestion(index) {
+      if (index < 0 || index >= questions.length) return;
+      
+      // Hide current question
+      const currentSlide = document.querySelector(`.question-slide[data-index="${currentQuestionIndex}"]`);
+      if (currentSlide) currentSlide.classList.remove('active');
+      
+      // Show new question
+      const newSlide = document.querySelector(`.question-slide[data-index="${index}"]`);
+      if (newSlide) newSlide.classList.add('active');
+      
+      currentQuestionIndex = index;
+      
+      document.getElementById('currentQuestion').textContent = index + 1;
+      updateNavigationButtons();
+      updateActiveDot();
+    }
+
+    function updateNavigationButtons() {
+      document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+      document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+    }
+
+    function updateActiveDot() {
+      const dots = document.getElementById('questionDots').children;
+      for (let i = 0; i < dots.length; i++) {
+        // Reset all dots to gray or green based on answer status
+        dots[i].classList.remove('bg-blue-600', 'bg-gray-300', 'bg-green-500');
+        if (questionStates[i].answered) {
+          dots[i].classList.add('bg-green-500');
+        } else {
+          dots[i].classList.add('bg-gray-300');
+        }
+
+        // Highlight the current question's dot in blue
+        if (i === currentQuestionIndex) {
+          dots[i].classList.remove('bg-gray-300', 'bg-green-500');
+          dots[i].classList.add('bg-blue-600');
+        }
+      }
+    }
+
+    function updateQuestionDot(index) {
+      const dots = document.getElementById('questionDots').children;
+      if (dots[index]) {
+        dots[index].classList.remove('bg-gray-300', 'bg-blue-600', 'bg-green-500');
+        dots[index].classList.add(questionStates[index].answered ? 'bg-green-500' : 'bg-gray-300');
+        
+        // Re-apply blue if it's the current question
+        if (index === currentQuestionIndex) {
+          dots[index].classList.add('bg-blue-600');
+        }
+      }
+    }
+
+    function updateProgressBar() {
+      if (questionStates.length === 0) return;
+      
+      const answeredCount = questionStates.filter(q => q.answered).length;
+      const progress = (answeredCount / questions.length) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+    }
+
+    async function submitTest(illegal = false) {
+      if (submitted) return;
+      submitted = true;
+      clearInterval(timerInterval);
+      clearInterval(focusCheckInterval);
+      clearTimeout(autoSubmitTimeout);
+      if (blockedTimeout) clearTimeout(blockedTimeout);
+
+      let correct = 0, incorrect = 0, attempted = 0;
+      const answers = [];
+
+      questions.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="q${i}"]:checked`);
+        if (sel) {
+          attempted++;
+          answers.push({
+            questionId: q.id || i,
+            selectedOption: sel.value,
+            correctOption: q.answer,
+            isCorrect: sel.value === q.answer
+          });
+          
+          if (sel.value === q.answer) correct++;
+          else incorrect++;
+        } else {
+          answers.push({
+            questionId: q.id || i,
+            selectedOption: null,
+            correctOption: q.answer,
+            isCorrect: false
+          });
+        }
+      });
+
+      const total = questions.length;
+      const percentage = parseFloat(((correct / total) * 100).toFixed(2));
+      const durationInSeconds = Math.round((Date.now() - startTime) / 1000);
+      const activityStatus = illegal ? 'illegal' : 'normal';
+
+      // Show result summary
+      const resultHtml = `
+        <div class="bg-white p-6 rounded-xl shadow-lg max-w-md mx-auto mb-6">
+          <h3 class="text-2xl font-bold text-center mb-4 ${illegal ? 'text-red-600' : 'text-green-600'}">
+            ${illegal ? '❗ Your test was submitted because of detected illegal activity or not following the instructions correctly' : '✅ Test submitted successfully. Please wait while you are automatically redirected to the previous page.'}
+          </h3>
+          
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <p class="text-sm text-blue-600 font-medium">Total Questions</p>
+              <p class="text-xl font-bold">${total}</p>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg">
+              <p class="text-sm text-green-600 font-medium">Attempted</p>
+              <p class="text-xl font-bold">${attempted}</p>
+            </div>
+            <div class="bg-green-100 p-3 rounded-lg">
+              <p class="text-sm text-green-700 font-medium">Correct</p>
+              <p class="text-xl font-bold">${correct}</p>
+            </div>
+            <div class="bg-red-100 p-3 rounded-lg">
+              <p class="text-sm text-red-700 font-medium">Incorrect</p>
+              <p class="text-xl font-bold">${incorrect}</p>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-medium text-gray-700">Score</span>
+              <span class="text-sm font-semibold ${percentage >= 70 ? 'text-green-600' : percentage >= 50 ? 'text-yellow-600' : 'text-red-600'}">
+                ${percentage}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div class="h-2.5 rounded-full ${percentage >= 70 ? 'bg-green-600' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-600'}" 
+                style="width: ${percentage}%"></div>
+            </div>
+          </div>
+          
+          <p class="text-center mt-4 text-gray-600">
+            Time taken: ${Math.floor(durationInSeconds / 60)}m ${durationInSeconds % 60}s
+          </p>
+        </div>
+      `;
+
+      // Insert result at the top
+      document.querySelector('.max-w-6xl').insertAdjacentHTML('afterbegin', resultHtml);
+
+      try {
+        await fetch(SUBMIT_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            mcqTypeId,
+            noofquestions: total,
+            attendedquestions: attempted,
+            noofcorrecctquestions: correct,
+            noofwrongquestions: incorrect,
+            percentage,
+            durationInSeconds,
+            status: 'completed',
+            activityStatus,
+            answers
+          })
+        });
+      } catch (error) {
+        console.error("Error submitting test:", error);
+      }
+
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('quizContainer').classList.add('hidden');
+
+      // Exit fullscreen if it was active
+      exitFullscreen();
+
+      setTimeout(() => {
+        window.location.href = 'technicalmcqs.html';
+      }, 10000);
+    }
+
+    // Event Listeners
+    document.getElementById('submitBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      submitTest(false);
+    });
+
+    // Fullscreen event listeners
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    function handleFullscreenChange() {
+      isFullscreen = !!document.fullscreenElement || !!document.webkitFullscreenElement || 
+                     !!document.mozFullScreenElement || !!document.msFullscreenElement;
+      updateFullscreenStatus();
+    }
+
+    // Illegal activity detection
+    window.addEventListener('blur', () => {
+      if (!submitted && !isBlocked) {
+        showBlockedScreen("Tab switching is not allowed during the exam.");
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      // No action needed on focus
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (submitted) return;
+      
+      const key = e.key.toLowerCase();
+      const illegalCombo =
+        (e.ctrlKey && ['c', 'v', 'u','w'].includes(key)) ||
+        (e.ctrlKey && e.shiftKey && key === 'i') ||
+        key === 'f12';
+
+      if (illegalCombo) {
+        e.preventDefault();
+        submitTest(true);
+      }
+    });
+
+    document.addEventListener('copy', (e) => {
+      e.preventDefault();
+      if (!submitted) submitTest(true);
+    });
+
+    document.addEventListener('paste', (e) => {
+      e.preventDefault();
+      if (!submitted) submitTest(true);
+    });
+
+    document.addEventListener('touchstart', (e) => {
+      if (!submitted && e.touches.length >= 3) {
+        e.preventDefault();
+        submitTest(true);
+      }
+    });
+
+    // Handle back button
+    window.addEventListener('popstate', function(event) {
+      if (!submitted) {
+        submitTest(true);
+      }
+    });
+  </script>
+</body>
+</html>

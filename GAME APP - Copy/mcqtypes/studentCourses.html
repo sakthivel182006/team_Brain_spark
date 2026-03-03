@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ CourseHub · student dashboard</title>
+  <!-- Tailwind via CDN + a touch of smooth behavior -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(145deg, #f9fafc 0%, #f0f4fa 100%); }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+  <!-- main container with gentle padding -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- header card: welcome + subtle logout (preserves all original logic) -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-10">
+      <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-white/30 px-6 py-4 w-full sm:w-auto">
+        <h1 id="welcome" class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-800 to-teal-700">
+          <!-- welcome text will be injected here by existing script -->
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">Your personalized course dashboard</p>
+      </div>
+
+      <!-- optional logout – does not alter original logic, just UX -->
+      <button onclick="logout()" class="group flex items-center gap-2 bg-white/80 hover:bg-white text-slate-600 hover:text-indigo-700 px-5 py-2.5 rounded-full shadow-sm border border-slate-200 transition duration-200 text-sm font-medium">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        <span>Logout</span>
+      </button>
+    </div>
+
+    <!-- courses grid (exactly the same ID, will be populated by loadCourses) -->
+    <div id="courses" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+      <!-- dynamic cards injected via javascript (same logic) -->
+    </div>
+  </div>
+
+  <!-- tiny extra script for logout (pure UI addition, no interference) -->
+  <script>
+    // optional logout helper — does not modify any existing condition/function
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "index.html";
+    }
+  </script>
+
+  <!-- ========== ORIGINAL SCRIPT (EXACT LOGIC, NO CHANGES) ========== -->
+  <script>
+    const API_BASE = "http://localhost:5000/api/agent";
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || user.role !== "user") {
+      alert("Login required");
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("welcome").innerText =
+      `Welcome ${user.username}`;
+
+    // =====================
+    // LOAD COURSES
+    // =====================
+    async function loadCourses() {
+
+      const res = await fetch(`${API_BASE}/courses`);
+      const courses = await res.json();
+
+      const container = document.getElementById("courses");
+      container.innerHTML = "";
+
+      courses.forEach(course => {
+
+        const div = document.createElement("div");
+
+        // 🎨 enhanced card UI with tailwind classes (keeping functionality identical)
+        div.className = "bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-indigo-50 flex flex-col overflow-hidden group";
+        div.innerHTML = `
+          <div class="p-6 flex-1">
+            <div class="w-12 h-12 bg-gradient-to-br from-indigo-100 to-teal-100 rounded-xl flex items-center justify-center mb-4 text-indigo-700">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-indigo-700 transition-colors">${course.title}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4">${course.description}</p>
+          </div>
+          <div class="px-6 pb-6 pt-2">
+            <button onclick="enroll('${course._id}')" 
+                    class="w-full bg-gradient-to-r from-indigo-600 to-teal-500 hover:from-indigo-700 hover:to-teal-600 text-white font-medium py-2.5 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              <span>Enroll now</span>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    async function enroll(courseId) {
+
+      const res = await fetch(`${API_BASE}/enroll`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          courseId
+        })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("✅ Enrolled successfully!");
+        window.location.href = `viewCourse.html?courseId=${courseId}`;
+      } else {
+        alert(result.message || "❌ Enrollment failed");
+      }
+    }
+
+    loadCourses();
+  </script>
+  <!-- ========== END OF ORIGINAL SCRIPT ========== -->
+
+  <!-- subtle footer (purely cosmetic) -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 text-center text-xs text-slate-400 border-t border-slate-200/60 pt-6">
+    <span>explore · learn · grow</span>
+  </div>
+</body>
+</html>

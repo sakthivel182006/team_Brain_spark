@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Modules</title>
+</head>
+<body>
+
+<div id="modules"></div>
+
+<script>
+
+const API_BASE = "http://localhost:5000/api/agent";
+const user = JSON.parse(localStorage.getItem("user"));
+
+const urlParams = new URLSearchParams(window.location.search);
+const courseId = urlParams.get("courseId");
+
+// =========================
+// CHECK ENROLLMENT FIRST
+// =========================
+async function checkEnrollment() {
+
+  const res = await fetch(
+    `${API_BASE}/enroll/check/${user.id}/${courseId}`
+  );
+
+  const result = await res.json();
+
+  if (!result.enrolled) {
+    alert("You are not enrolled in this course.");
+    window.location.href = "studentCourses.html";
+  } else {
+    loadModules();
+  }
+}
+
+// =========================
+// LOAD MODULES
+// =========================
+async function loadModules() {
+
+  const res = await fetch(
+    `${API_BASE}/modules/course/${courseId}`
+  );
+
+  const modules = await res.json();
+
+  const container = document.getElementById("modules");
+
+  modules.forEach(module => {
+
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+      <h3>${module.title}</h3>
+      <p>Concept: ${module.conceptTag}</p>
+      <video width="400" controls>
+        <source src="${module.videoUrl}" type="video/mp4">
+      </video>
+      <hr>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+checkEnrollment();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const profilePicture = document.getElementById('userImage');
+            const profileName = document.getElementById('profile-name');
+            const profileEmail = document.getElementById('profile-email');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+
+            // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            // Check if user is logged in
+            if (!user || isLoggedIn !== 'true') {
+                window.location.href = 'index.html';
+                return;
+            }
+       
+            // Set profile data
+            if (profilePicture) profilePicture.src = user.profilePicture || 'https://flowbite.com/docs/images/people/profile-picture-5.jpg';
+            if (profileName) profileName.textContent = user.name || user.username || 'User';
+            if (profileEmail) profileEmail.textContent = user.email || 'user@example.com';
+
+            // Logout function
+            const handleLogout = (e) => {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'index.html';
+            };
+
+            // Add event listeners
+            if (signOutBtn) signOutBtn.addEventListener('click', handleLogout);
+            if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', handleLogout);
+        });
+    </script>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard - MCQ Management</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #7209b7;
+        --success: #4cc9f0;
+        --info: #4895ef;
+        --warning: #f72585;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --light-gray: #e9ecef;
+        --border-radius: 10px;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: var(--dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    header {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        color: white;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin-bottom: 25px;
+        box-shadow: var(--box-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    header h1 i {
+        font-size: 2rem;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background-color: white;
+        color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--light-gray);
+        transform: translateY(-2px);
+    }
+
+    .card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 25px;
+        margin-bottom: 25px;
+        transition: var(--transition);
+    }
+
+    .card:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .teacher-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+        gap: 15px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        outline: none;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    thead {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        color: white;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    th {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:hover {
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    .action-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.85rem;
+    }
+
+    .edit-btn {
+        background-color: var(--info);
+        color: white;
+    }
+
+    .edit-btn:hover {
+        background-color: #3a7be0;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(67, 97, 238, 0.2);
+        border-radius: 50%;
+        border-top-color: var(--primary);
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-error {
+        background-color: rgba(247, 37, 133, 0.1);
+        border-left: 4px solid var(--warning);
+        color: #b5175a;
+    }
+
+    .alert-success {
+        background-color: rgba(76, 201, 240, 0.1);
+        border-left: 4px solid var(--success);
+        color: #0c8599;
+    }
+
+    .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .tab {
+        padding: 12px 25px;
+        cursor: pointer;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        transition: var(--transition);
+    }
+
+    .tab.active {
+        color: var(--primary);
+        border-bottom: 3px solid var(--primary);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .btn-group {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .teacher-info {
+            grid-template-columns: 1fr;
+        }
+        
+        .tabs {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher MCQ Management Dashboard</h1>
+            <div class="btn-group">
+                <a href="mcqquestioncontrol.html" class="btn btn-secondary"><i class="fas fa-question-circle"></i> MCQ Questions Dashboard</a>
+                <a href="studentscoresmark.html" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> Student Scores Dashboard</a>
+                <a href="../teacher/admin-education.html" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> Add Courses And Modules </a>
+                <a href="../teacher/feeedback.html" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> Analysis feedback </a>
+            </div>
+        </header>
+
+       <div id="authAlert" class="alert alert-error" style="position:fixed; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:rgba(0,0,0,0.5); color:#fff; font-size:20px; z-index:9999;">
+    <i class="fas fa-exclamation-circle" style="margin-right:10px;"></i>
+    <span id="authMessage">Checking authentication, please wait...</span>
+</div>
+
+<script>
+const authAlert = document.getElementById('authAlert');
+const loginData = JSON.parse(localStorage.getItem('teacherLogin'));
+
+setTimeout(() => {
+    if (!loginData || loginData.expiry < Date.now() || loginData.data.role !== 'teacher') {
+        document.getElementById('authMessage').textContent = 'Authentication failed. Redirecting to login...';
+        setTimeout(() => window.location.href = '../index.html', 2000);
+    } else {
+        // Teacher is logged in, remove loading
+        authAlert.style.display = 'none';
+    }
+}, 5000);
+</script>
+
+
+        <div class="tabs">
+            <div class="tab active" data-tab="teacher-info">Teacher Info</div>
+            <div class="tab" data-tab="create-mcq">Create MCQ Type</div>
+            <div class="tab" data-tab="mcq-list">MCQ Types</div>
+            <div class="tab" data-tab="create-question">Add Questions</div>
+        </div>
+
+        <!-- Teacher Info -->
+        <div id="teacher-info" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-user-tie"></i> Teacher Profile</h2>
+                </div>
+                <div class="teacher-info">
+                    <div class="info-item">
+                        <span class="info-label">Name</span>
+                        <span class="info-value" id="teacherName">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" id="teacherEmail">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value" id="teacherPhone">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Department</span>
+                        <span class="info-value" id="teacherDepartment">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">College</span>
+                        <span class="info-value" id="teacherCollegeName">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">College Email</span>
+                        <span class="info-value" id="teacherCollegeEmail">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create MCQ Type Form -->
+        <div id="create-mcq" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-plus-circle"></i> Create New MCQ Type</h2>
+                </div>
+                <form id="mcqTypeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="name">MCQ Type Name</label>
+                            <input type="text" id="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="entryFee">Entry Fee</label>
+                            <input type="number" id="entryFee" class="form-control" value="0" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea id="description" class="form-control" placeholder="Optional description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="imageUrl">Image URL</label>
+                        <input type="text" id="imageUrl" class="form-control" placeholder="Optional image URL">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="startTimeBeforeStart">Start Time</label>
+                            <input type="datetime-local" id="startTimeBeforeStart" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="dueTimeBeforeStart">Due Time</label>
+                            <input type="datetime-local" id="dueTimeBeforeStart" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create MCQ Type</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MCQ Types Table -->
+        <div id="mcq-list" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-list-alt"></i> MCQ Types</h2>
+                </div>
+                <div class="table-container">
+                    <table id="mcqTable">
+                        <thead>
+                            <tr>
+                                <th>MCQ Name</th>
+                                <th>Description</th>
+                                <th>Entry Fee</th>
+                                <th>Start Time</th>
+                                <th>Due Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update MCQ Type Form -->
+        <div id="updateForm" class="card hidden">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-edit"></i> Update MCQ Type</h2>
+            </div>
+            <form id="mcqUpdateForm">
+                <input type="hidden" id="updateMcqId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="updateName">MCQ Type Name</label>
+                        <input type="text" id="updateName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="updateEntryFee">Entry Fee</label>
+                        <input type="number" id="updateEntryFee" class="form-control" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="updateDescription">Description</label>
+                    <textarea id="updateDescription" class="form-control"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="updateImageUrl">Image URL</label>
+                    <input type="text" id="updateImageUrl" class="form-control">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="updateStartTime">Start Time</label>
+                        <input type="datetime-local" id="updateStartTime" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="updateDueTime">Due Time</label>
+                        <input type="datetime-local" id="updateDueTime" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Update MCQ Type</button>
+                    <button type="button" id="cancelUpdate" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Create MCQ Question -->
+        <div id="create-question" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-question"></i> Add New MCQ Question</h2>
+                </div>
+                <form id="questionForm">
+                    <div class="form-group">
+                        <label class="form-label" for="mcqTypeSelect">Select MCQ Type</label>
+                        <select id="mcqTypeSelect" class="form-control" required>
+                            <option value="">Select MCQ Type</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="question">Question</label>
+                        <input type="text" id="question" class="form-control" placeholder="Enter question" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="optionA">Option A</label>
+                            <input type="text" id="optionA" class="form-control" placeholder="Option A" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="optionB">Option B</label>
+                            <input type="text" id="optionB" class="form-control" placeholder="Option B" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="optionC">Option C</label>
+                            <input type="text" id="optionC" class="form-control" placeholder="Option C" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="optionD">Option D</label>
+                            <input type="text" id="optionD" class="form-control" placeholder="Option D" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="answer">Correct Answer (A/B/C/D)</label>
+                        <input type="text" id="answer" class="form-control" maxlength="1" pattern="[ABCD]" placeholder="Enter A, B, C, or D" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Question</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const baseURL = 'https://gameappbackend-i8zv.onrender.com';
+        let selectedMcqTypeId = localStorage.getItem('selectedMcqTypeId') || '';
+        let teacherId = '';
+        let teacherData = null;
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Authentication check
+        function checkAuth() {
+            const loginData = JSON.parse(localStorage.getItem('teacherLogin'));
+            
+            if (!loginData) {
+                showAuthError('Not logged in. Redirecting to login page...');
+                setTimeout(() => window.location.href = '../index.html', 2000);
+                return false;
+            }
+            
+            if (loginData.expiry < Date.now()) {
+                showAuthError('Session expired. Redirecting to login page...');
+                setTimeout(() => window.location.href = '../index.html', 2000);
+                return false;
+            }
+            
+            if (loginData.data.role !== 'teacher') {
+                showAuthError('Invalid user role. Redirecting to login page...');
+                setTimeout(() => window.location.href = '../index.html', 2000);
+                return false;
+            }
+            
+            // If all checks pass
+            teacherData = loginData.data;
+            teacherId = teacherData._id;
+            displayTeacherInfo();
+            return true;
+        }
+
+        function showAuthError(message) {
+            const authAlert = document.getElementById('authAlert');
+            document.getElementById('authMessage').textContent = message;
+            authAlert.classList.remove('hidden');
+        }
+
+        function displayTeacherInfo() {
+            if (teacherData) {
+                document.getElementById('teacherName').textContent = teacherData.name || 'N/A';
+                document.getElementById('teacherEmail').textContent = teacherData.email || 'N/A';
+                document.getElementById('teacherPhone').textContent = teacherData.phone || 'N/A';
+                document.getElementById('teacherDepartment').textContent = teacherData.department || 'N/A';
+                document.getElementById('teacherCollegeName').textContent = teacherData.college?.name || 'N/A';
+                document.getElementById('teacherCollegeEmail').textContent = teacherData.college?.officialEmail || 'N/A';
+            }
+        }
+
+        // Fetch MCQ Types
+        async function fetchMcqTypes() {
+            try {
+                const res = await fetch(`${baseURL}/api/teachers/mcqtype/teacher/${teacherId}`);
+                const result = await res.json();
+                const tbody = document.querySelector('#mcqTable tbody');
+                const mcqDropdown = document.getElementById('mcqTypeSelect');
+                
+                tbody.innerHTML = '';
+                mcqDropdown.innerHTML = '<option value="">Select MCQ Type</option>';
+
+                if (res.ok) {
+                    if (result.data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 30px;">
+                                    <i class="fas fa-inbox" style="font-size: 2rem; color: #ccc; margin-bottom: 10px;"></i>
+                                    <p>No MCQ types found. Create your first MCQ type!</p>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        result.data.forEach(mcq => {
+                            // Add to Table
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${mcq.name}</td>
+                                <td>${mcq.description || 'No description'}</td>
+                                <td>$${mcq.entryFee || 0}</td>
+                                <td>${new Date(mcq.startTimeBeforeStart).toLocaleString()}</td>
+                                <td>${new Date(mcq.dueTimeBeforeStart).toLocaleString()}</td>
+                                <td>
+                                    <button class="action-btn edit-btn" onclick="editMcq('${mcq._id}')">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+
+                            // Add to Dropdown
+                            const option = document.createElement('option');
+                            option.value = mcq._id;
+                            option.textContent = mcq.name;
+                            mcqDropdown.appendChild(option);
+                        });
+                    }
+
+                    // Reselect last chosen MCQ Type
+                    if (selectedMcqTypeId) {
+                        mcqDropdown.value = selectedMcqTypeId;
+                    }
+                } else {
+                    throw new Error(result.message || 'Failed to fetch MCQ types');
+                }
+            } catch (err) {
+                console.error('Error fetching MCQ Types:', err);
+                const tbody = document.querySelector('#mcqTable tbody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle"></i> Error loading MCQ types: ${err.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Create MCQ Type
+        document.getElementById('mcqTypeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+                submitBtn.disabled = true;
+                
+                const data = {
+                    teacherId,
+                    name: document.getElementById('name').value.trim(),
+                    description: document.getElementById('description').value.trim(),
+                    imageUrl: document.getElementById('imageUrl').value.trim(),
+                    entryFee: parseFloat(document.getElementById('entryFee').value) || 0,
+                    startTimeBeforeStart: document.getElementById('startTimeBeforeStart').value,
+                    dueTimeBeforeStart: document.getElementById('dueTimeBeforeStart').value
+                };
+
+                const res = await fetch(`${baseURL}/api/teachers/mcqtype/add`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok) {
+                    alert('MCQ Type created successfully!');
+                    e.target.reset();
+                    fetchMcqTypes();
+                    // Switch to MCQ list tab
+                    document.querySelector('.tab[data-tab="mcq-list"]').click();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Dropdown Change
+        document.getElementById('mcqTypeSelect').addEventListener('change', (e) => {
+            selectedMcqTypeId = e.target.value;
+            localStorage.setItem('selectedMcqTypeId', selectedMcqTypeId);
+        });
+
+        // Create MCQ Question
+        document.getElementById('questionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                submitBtn.disabled = true;
+                
+                const mcqTypeId = selectedMcqTypeId || document.getElementById('mcqTypeSelect').value;
+                if (!mcqTypeId) {
+                    alert('Please select MCQ Type.');
+                    return;
+                }
+
+                const data = {
+                    mcqTypeId,
+                    question: document.getElementById('question').value.trim(),
+                    options: {
+                        A: document.getElementById('optionA').value.trim(),
+                        B: document.getElementById('optionB').value.trim(),
+                        C: document.getElementById('optionC').value.trim(),
+                        D: document.getElementById('optionD').value.trim()
+                    },
+                    answer: document.getElementById('answer').value.trim().toUpperCase()
+                };
+
+                const res = await fetch(`${baseURL}/api/teachers/mcqquestion/add`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok) {
+                    alert('Question added successfully!');
+                    e.target.reset();
+                    document.getElementById('mcqTypeSelect').value = selectedMcqTypeId; // Preserve selection
+                } else {
+                    alert('Error: ' + (result.error || result.message));
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Edit MCQ Type
+        function editMcq(mcqId) {
+            fetch(`${baseURL}/api/teachers/mcqtype/teacher/${teacherId}`)
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    const mcq = result.data.find(m => m._id === mcqId);
+                    if (mcq) {
+                        document.getElementById('updateMcqId').value = mcq._id;
+                        document.getElementById('updateName').value = mcq.name;
+                        document.getElementById('updateDescription').value = mcq.description || '';
+                        document.getElementById('updateImageUrl').value = mcq.imageUrl || '';
+                        document.getElementById('updateEntryFee').value = mcq.entryFee || 0;
+                        document.getElementById('updateStartTime').value = new Date(mcq.startTimeBeforeStart).toISOString().slice(0,16);
+                        document.getElementById('updateDueTime').value = new Date(mcq.dueTimeBeforeStart).toISOString().slice(0,16);
+                        
+                        // Show update form and scroll to it
+                        document.getElementById('updateForm').classList.remove('hidden');
+                        document.getElementById('updateForm').scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            })
+            .catch(err => {
+                alert('Error fetching MCQ details: ' + err.message);
+            });
+        }
+
+        // Update MCQ Type
+        document.getElementById('mcqUpdateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                submitBtn.disabled = true;
+                
+                const mcqId = document.getElementById('updateMcqId').value;
+                const data = {
+                    teacherId,
+                    name: document.getElementById('updateName').value.trim(),
+                    description: document.getElementById('updateDescription').value.trim(),
+                    imageUrl: document.getElementById('updateImageUrl').value.trim(),
+                    entryFee: parseFloat(document.getElementById('updateEntryFee').value) || 0,
+                    startTimeBeforeStart: document.getElementById('updateStartTime').value,
+                    dueTimeBeforeStart: document.getElementById('updateDueTime').value
+                };
+                
+                const res = await fetch(`${baseURL}/api/teachers/mcqtype/update/${mcqId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok) {
+                    alert('MCQ Type updated successfully!');
+                    document.getElementById('updateForm').classList.add('hidden');
+                    fetchMcqTypes();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                alert('Error updating MCQ Type: ' + err.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Cancel Update
+        document.getElementById('cancelUpdate').addEventListener('click', () => {
+            document.getElementById('updateForm').classList.add('hidden');
+        });
+
+        // Initialize the application
+        function initApp() {
+            if (checkAuth()) {
+                fetchMcqTypes();
+            }
+        }
+
+        // Load the app when DOM is ready
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

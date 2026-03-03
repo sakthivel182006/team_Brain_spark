@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Purchase Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --danger: #f72585;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --info: #560bad;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar {
+      transition: all 0.3s ease;
+    }
+    
+    .card {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .card {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    }
+    
+    .dark .card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+    }
+    
+    .btn-success {
+      background-color: var(--success);
+    }
+    
+    .btn-warning {
+      background-color: var(--warning);
+    }
+    
+    .btn-info {
+      background-color: var(--info);
+    }
+    
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .sidebar-item:hover .sidebar-icon {
+      transform: scale(1.1);
+    }
+    
+    .sidebar-icon {
+      transition: all 0.2s ease;
+    }
+    
+    .dropdown-content {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+    }
+    
+    .dropdown:hover .dropdown-content {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .tabs .tab {
+      position: relative;
+    }
+    
+    .tabs .tab.active:after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary);
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+    }
+    
+    .badge-success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+    
+    .badge-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+    
+    .badge-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    
+    .badge-info {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+    
+    .status-pending {
+      background-color: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
+    }
+    
+    .status-completed {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+    
+    .status-failed {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    
+    .status-processing {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+    
+    .scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+    }
+    
+    .scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    
+    .scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .dark .scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .dark .scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .dark .scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .skeleton {
+      background-color: #e2e8f0;
+      background-image: linear-gradient(90deg, #e2e8f0 0px, #f1f5f9 40px, #e2e8f0 80px);
+      background-size: 200%;
+      animation: shimmer 1.5s infinite linear;
+    }
+    
+    .dark .skeleton {
+      background-color: #334155;
+      background-image: linear-gradient(90deg, #334155 0px, #475569 40px, #334155 80px);
+    }
+    
+    @keyframes shimmer {
+      0% {
+        background-position: -100px;
+      }
+      100% {
+        background-position: 100px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 hidden md:flex flex-col">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-primary-500 flex items-center justify-center text-white font-bold">
+            PM
+          </div>
+          <div>
+            <h2 class="font-bold text-lg">Purchase Manager</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Admin Dashboard</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto scrollbar">
+        <div class="p-4">
+          <ul class="space-y-1">
+            <li>
+              <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary-50 dark:bg-gray-700 text-primary-600 dark:text-primary-400 font-medium">
+                <i class="fas fa-shopping-cart sidebar-icon"></i>
+                <span>Purchases</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <i class="fas fa-users sidebar-icon"></i>
+                <span>Users</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <i class="fas fa-chart-line sidebar-icon"></i>
+                <span>Analytics</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                <i class="fas fa-cog sidebar-icon"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+          
+          <div class="mt-8">
+            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3 mb-2">Reports</h3>
+            <ul class="space-y-1">
+              <li>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                  <i class="fas fa-file-invoice-dollar sidebar-icon"></i>
+                  <span>Sales</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                  <i class="fas fa-file-export sidebar-icon"></i>
+                  <span>Exports</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+            <i class="fas fa-user text-gray-600 dark:text-gray-300"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Admin User</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+          </div>
+          <button class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Top Navigation -->
+      <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between px-4 py-3">
+          <div class="flex items-center space-x-2">
+            <button class="md:hidden text-gray-500 dark:text-gray-400">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-xl font-bold">Dashboard</h1>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <button class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                <i class="fas fa-bell text-xl"></i>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+            
+            <div class="relative">
+              <button class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                <i class="fas fa-envelope text-xl"></i>
+              </button>
+              <span class="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></span>
+            </div>
+            
+            <div class="relative dropdown">
+              <button class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                  <i class="fas fa-user text-gray-600 dark:text-gray-300"></i>
+                </div>
+                <span class="hidden md:inline font-medium">Admin</span>
+                <i class="fas fa-chevron-down text-xs hidden md:inline"></i>
+              </button>
+              
+              <div class="dropdown-content absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 py-1 border border-gray-200 dark:border-gray-700">
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
+                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Sign out</a>
+              </div>
+            </div>
+            
+            <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              <i class="fas fa-moon dark:hidden"></i>
+              <i class="fas fa-sun hidden dark:inline"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Main Content Area -->
+      <main class="flex-1 overflow-y-auto p-4 scrollbar">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Purchases</p>
+                <h3 class="text-2xl font-bold mt-1" id="totalPurchases">-</h3>
+                <p class="text-sm text-green-500 mt-1 flex items-center">
+                  <i class="fas fa-arrow-up mr-1"></i>
+                  <span id="purchaseChange">0%</span> from last month
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-gray-700 flex items-center justify-center text-blue-500">
+                <i class="fas fa-shopping-cart text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue</p>
+                <h3 class="text-2xl font-bold mt-1" id="totalRevenue">-</h3>
+                <p class="text-sm text-green-500 mt-1 flex items-center">
+                  <i class="fas fa-arrow-up mr-1"></i>
+                  <span id="revenueChange">0%</span> from last month
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-green-50 dark:bg-gray-700 flex items-center justify-center text-green-500">
+                <i class="fas fa-dollar-sign text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Users</p>
+                <h3 class="text-2xl font-bold mt-1" id="activeUsers">-</h3>
+                <p class="text-sm text-red-500 mt-1 flex items-center">
+                  <i class="fas fa-arrow-down mr-1"></i>
+                  <span id="userChange">0%</span> from last month
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-purple-50 dark:bg-gray-700 flex items-center justify-center text-purple-500">
+                <i class="fas fa-users text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Avg. Order Value</p>
+                <h3 class="text-2xl font-bold mt-1" id="avgOrderValue">-</h3>
+                <p class="text-sm text-green-500 mt-1 flex items-center">
+                  <i class="fas fa-arrow-up mr-1"></i>
+                  <span id="aovChange">0%</span> from last month
+                </p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-yellow-50 dark:bg-gray-700 flex items-center justify-center text-yellow-500">
+                <i class="fas fa-chart-pie text-xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold">Revenue Overview</h2>
+              <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md">Week</button>
+                <button class="px-3 py-1 text-xs bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-md">Month</button>
+                <button class="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md">Year</button>
+              </div>
+            </div>
+            <div class="h-64">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold">Purchase Status</h2>
+            </div>
+            <div class="h-64">
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Purchases -->
+        <div class="card bg-white dark:bg-gray-800 rounded-lg p-4 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold">Recent Purchases</h2>
+            <button onclick="downloadExcel()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg flex items-center text-sm">
+              <i class="fas fa-download mr-2"></i>
+              Export
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table id="allPurchasesTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Product</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="purchasesTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <!-- Data will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+          <div class="flex items-center justify-between mt-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+              Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalItems">0</span> entries
+            </div>
+            <div class="flex space-x-2">
+              <button id="prevPage" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50" disabled>
+                Previous
+              </button>
+              <button id="nextPage" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50" disabled>
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- User Search and Create Purchase -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Get Purchases by User ID -->
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <h2 class="font-bold mb-4">Get Purchases by User</h2>
+            <div class="flex items-center space-x-2 mb-4">
+              <input type="text" id="loginuserid" placeholder="Enter User ID" class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+              <button onclick="getByUserId()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg">
+                Search
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table id="userPurchasesTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="userPurchasesTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Create New Purchase -->
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <h2 class="font-bold mb-4">Create New Purchase</h2>
+            <form id="createForm" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">User ID</label>
+                  <input type="text" name="loginuserid" placeholder="User ID" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">MCQ Type ID</label>
+                  <input type="text" name="mcqTypeId" placeholder="MCQ Type ID" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">MCQ Type Name</label>
+                  <input type="text" name="mcqTypeName" placeholder="MCQ Type Name" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product</label>
+                  <input type="text" name="product" placeholder="Product" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment ID</label>
+                  <input type="text" name="paymentId" placeholder="Payment ID" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Order ID</label>
+                  <input type="text" name="orderId" placeholder="Order ID" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
+                  <input type="number" name="amount" placeholder="Amount" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Remaining Balance</label>
+                  <input type="number" name="remainingBalance" placeholder="Remaining Balance" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <select name="status" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                  <option value="">Select Status</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                  <option value="failed">Failed</option>
+                  <option value="processing">Processing</option>
+                </select>
+              </div>
+              
+              <button type="submit" class="w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg flex items-center justify-center">
+                <i class="fas fa-plus-circle mr-2"></i>
+                Create Purchase
+              </button>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Update and Delete Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          <!-- Update Purchase -->
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <h2 class="font-bold mb-4">Update Purchase</h2>
+            <form id="updateForm" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase ID</label>
+                <input type="text" name="id" placeholder="Purchase ID to Update" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Status</label>
+                  <select name="status" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                    <option value="">Select Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                    <option value="processing">Processing</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Remaining Balance</label>
+                  <input type="number" name="remainingBalance" placeholder="Remaining Balance" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+                </div>
+              </div>
+              
+              <button type="submit" class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg flex items-center justify-center">
+                <i class="fas fa-sync-alt mr-2"></i>
+                Update Purchase
+              </button>
+            </form>
+          </div>
+          
+          <!-- Delete Purchase -->
+          <div class="card bg-white dark:bg-gray-800 rounded-lg p-4">
+            <h2 class="font-bold mb-4">Delete Purchase</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase ID</label>
+                <input type="text" id="deleteId" placeholder="Enter Purchase ID" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700">
+              </div>
+              
+              <button onclick="deletePurchase()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center">
+                <i class="fas fa-trash-alt mr-2"></i>
+                Delete Purchase
+              </button>
+              
+              <div class="p-4 bg-red-50 dark:bg-gray-700 rounded-lg">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800 dark:text-red-400">Warning</h3>
+                    <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                      <p>This action cannot be undone. Deleting a purchase will permanently remove it from the database.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+<script>
+    // Redirect to index.html if admin is not logged in
+    window.onload = function () {
+      // Get user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+             // 🔒 Check login and role
+            if (!user || user.role !== 'admin') {
+                alert("session expired");
+                window.location.href = '../index.html';
+                return;
+            }
+    };
+  </script> 
+  <script>
+    const API_BASE = "https://gameappbackend-i8zv.onrender.com/api/purchases";
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allPurchasesData = [];
+    let revenueChart, statusChart;
+
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      updateChartsTheme();
+    });
+
+    // Check for saved theme preference
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+
+    // Initialize charts
+    function initCharts() {
+      // Revenue Chart
+      const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+      revenueChart = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+          datasets: [{
+            label: 'Revenue',
+            data: [1200, 1900, 1500, 2000, 2500, 2200, 3000],
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: getChartOptions('$')
+      });
+
+      // Status Chart
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Pending', 'Failed', 'Processing'],
+          datasets: [{
+            data: [45, 15, 10, 30],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(251, 191, 36, 0.8)',
+              'rgba(239, 68, 68, 0.8)',
+              'rgba(59, 130, 246, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color') || '#6B7280'
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function getChartOptions(prefix = '') {
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color') || '#6B7280';
+      const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--grid-color') || 'rgba(0, 0, 0, 0.1)';
+      
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return prefix + context.parsed.y.toFixed(2);
+              }
+            }
+          },
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              color: gridColor,
+              borderColor: gridColor
+            },
+            ticks: {
+              color: textColor
+            }
+          },
+          y: {
+            grid: {
+              color: gridColor,
+              borderColor: gridColor
+            },
+            ticks: {
+              color: textColor,
+              callback: function(value) {
+                return prefix + value;
+              }
+            }
+          }
+        }
+      };
+    }
+
+    function updateChartsTheme() {
+      const textColor = document.documentElement.classList.contains('dark') ? '#E5E7EB' : '#6B7280';
+      const gridColor = document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+      
+      if (revenueChart) {
+        revenueChart.options.scales.x.ticks.color = textColor;
+        revenueChart.options.scales.x.grid.color = gridColor;
+        revenueChart.options.scales.x.grid.borderColor = gridColor;
+        revenueChart.options.scales.y.ticks.color = textColor;
+        revenueChart.options.scales.y.grid.color = gridColor;
+        revenueChart.options.scales.y.grid.borderColor = gridColor;
+        revenueChart.update();
+      }
+      
+      if (statusChart) {
+        statusChart.options.plugins.legend.labels.color = textColor;
+        statusChart.update();
+      }
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+      if (!status) return '';
+      
+      const statusMap = {
+        'completed': { class: 'status-completed', text: 'Completed', icon: 'fa-check-circle' },
+        'pending': { class: 'status-pending', text: 'Pending', icon: 'fa-clock' },
+        'failed': { class: 'status-failed', text: 'Failed', icon: 'fa-times-circle' },
+        'processing': { class: 'status-processing', text: 'Processing', icon: 'fa-sync-alt' }
+      };
+      
+      const statusInfo = statusMap[status.toLowerCase()] || { class: 'status-pending', text: status, icon: 'fa-question-circle' };
+      
+      return `
+        <span class="badge ${statusInfo.class} text-xs px-2 py-1 rounded-full inline-flex items-center">
+          <i class="fas ${statusInfo.icon} mr-1"></i>
+          ${statusInfo.text}
+        </span>
+      `;
+    }
+
+    // Fetch all purchases
+    async function fetchAllPurchases() {
+      try {
+        // Show loading state
+        document.getElementById('purchasesTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" class="px-6 py-4 text-center">
+              <div class="flex justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+              </div>
+            </td>
+          </tr>
+        `;
+        
+        const res = await fetch(API_BASE);
+        const data = await res.json();
+        allPurchasesData = data;
+        
+        // Update stats
+        updateStats(data);
+        
+        // Render table
+        renderPurchasesTable(data);
+        
+        // Update charts with real data
+        updateCharts(data);
+      } catch (error) {
+        console.error("Error fetching purchases:", error);
+        document.getElementById('purchasesTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" class="px-6 py-4 text-center text-red-500">
+              Failed to load data. Please try again.
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Update stats cards
+    function updateStats(data) {
+      const totalPurchases = data.length;
+      const totalRevenue = data.reduce((sum, item) => sum + (item.amount || 0), 0);
+      const avgOrderValue = totalPurchases > 0 ? totalRevenue / totalPurchases : 0;
+      
+      // Unique users
+      const uniqueUsers = new Set(data.map(item => item.loginuserid));
+      
+      document.getElementById('totalPurchases').textContent = totalPurchases;
+      document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+      document.getElementById('activeUsers').textContent = uniqueUsers.size;
+      document.getElementById('avgOrderValue').textContent = formatCurrency(avgOrderValue);
+      
+      // Random changes for demo
+      document.getElementById('purchaseChange').textContent = `${Math.floor(Math.random() * 20) + 5}%`;
+      document.getElementById('revenueChange').textContent = `${Math.floor(Math.random() * 25) + 10}%`;
+      document.getElementById('userChange').textContent = `${Math.floor(Math.random() * 10) + 1}%`;
+      document.getElementById('aovChange').textContent = `${Math.floor(Math.random() * 15) + 5}%`;
+    }
+
+    // Update charts with real data
+    function updateCharts(data) {
+      if (!data || data.length === 0) return;
+      
+      // Group by month for revenue chart
+      const monthlyRevenue = {};
+      data.forEach(item => {
+        const date = new Date(item.createdAt || new Date());
+        const month = date.toLocaleString('default', { month: 'short' });
+        monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (item.amount || 0);
+      });
+      
+      // Group by status for status chart
+      const statusCounts = {
+        'completed': 0,
+        'pending': 0,
+        'failed': 0,
+        'processing': 0
+      };
+      
+      data.forEach(item => {
+        const status = item.status ? item.status.toLowerCase() : 'pending';
+        if (statusCounts.hasOwnProperty(status)) {
+          statusCounts[status]++;
+        } else {
+          statusCounts.pending++;
+        }
+      });
+      
+      // Update revenue chart
+      if (revenueChart) {
+        revenueChart.data.datasets[0].data = Object.values(monthlyRevenue);
+        revenueChart.data.labels = Object.keys(monthlyRevenue);
+        revenueChart.update();
+      }
+      
+      // Update status chart
+      if (statusChart) {
+        statusChart.data.datasets[0].data = Object.values(statusCounts);
+        statusChart.update();
+      }
+    }
+
+    // Render purchases table with pagination
+    function renderPurchasesTable(data) {
+      const startIdx = (currentPage - 1) * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const paginatedData = data.slice(startIdx, endIdx);
+      
+      const tableBody = document.getElementById('purchasesTableBody');
+      tableBody.innerHTML = '';
+      
+      if (paginatedData.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+              No purchases found
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      paginatedData.forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            ${item._id || item.id || 'N/A'}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${item.loginuserid || 'N/A'}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${item.product || item.mcqTypeName || 'N/A'}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${item.amount ? formatCurrency(item.amount) : 'N/A'}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${item.createdAt ? formatDate(item.createdAt) : 'N/A'}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+            ${getStatusBadge(item.status)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button onclick="editPurchase('${item._id || item.id}')" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="confirmDelete('${item._id || item.id}')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      // Update pagination info
+      document.getElementById('showingFrom').textContent = startIdx + 1;
+      document.getElementById('showingTo').textContent = Math.min(endIdx, data.length);
+      document.getElementById('totalItems').textContent = data.length;
+      
+      // Update pagination buttons
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = endIdx >= data.length;
+    }
+
+    // Get purchases by user ID
+    function getByUserId() {
+      const userId = document.getElementById('loginuserid').value.trim();
+      if (!userId) {
+        alert('Please enter a User ID');
+        return;
+      }
+      
+      const tableBody = document.getElementById('userPurchasesTableBody');
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-6 py-4 text-center">
+            <div class="flex justify-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+            </div>
+          </td>
+        </tr>
+      `;
+      
+      fetch(`${API_BASE}/user/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                  No purchases found for this user
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          tableBody.innerHTML = '';
+          data.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+            row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                ${item._id || item.id || 'N/A'}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                ${item.product || item.mcqTypeName || 'N/A'}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                ${item.amount ? formatCurrency(item.amount) : 'N/A'}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                ${getStatusBadge(item.status)}
+              </td>
+            `;
+            tableBody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error('Error fetching user purchases:', err);
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="4" class="px-6 py-4 text-center text-red-500">
+                Failed to load data. Please try again.
+              </td>
+            </tr>
+          `;
+        });
+    }
+
+    // Create new purchase
+    document.getElementById('createForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const obj = Object.fromEntries(formData.entries());
+      
+      // Validate amount
+      if (obj.amount && isNaN(parseFloat(obj.amount))) {
+        alert('Please enter a valid amount');
+        return;
+      }
+      
+      try {
+        const createBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = createBtn.innerHTML;
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
+        createBtn.disabled = true;
+        
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj)
+        });
+        
+        if (res.ok) {
+          // Show success message
+          showToast('Purchase created successfully!', 'success');
+          
+          // Refresh data
+          fetchAllPurchases();
+          
+          // Reset form
+          this.reset();
+        } else {
+          const errorData = await res.json();
+          showToast(errorData.message || 'Failed to create purchase', 'error');
+        }
+      } catch (error) {
+        console.error('Error creating purchase:', error);
+        showToast('Error creating purchase', 'error');
+      } finally {
+        const createBtn = this.querySelector('button[type="submit"]');
+        createBtn.innerHTML = originalBtnText;
+        createBtn.disabled = false;
+      }
+    });
+
+    // Update purchase
+    document.getElementById('updateForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const { id, ...rest } = Object.fromEntries(formData.entries());
+      
+      if (!id) {
+        alert('Please enter a Purchase ID');
+        return;
+      }
+      
+      try {
+        const updateBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = updateBtn.innerHTML;
+        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+        updateBtn.disabled = true;
+        
+        const res = await fetch(`${API_BASE}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rest)
+        });
+        
+        if (res.ok) {
+          showToast('Purchase updated successfully!', 'success');
+          fetchAllPurchases();
+          this.reset();
+        } else {
+          const errorData = await res.json();
+          showToast(errorData.message || 'Failed to update purchase', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating purchase:', error);
+        showToast('Error updating purchase', 'error');
+      } finally {
+        const updateBtn = this.querySelector('button[type="submit"]');
+        updateBtn.innerHTML = originalBtnText;
+        updateBtn.disabled = false;
+      }
+    });
+
+    // Delete purchase
+    async function deletePurchase() {
+      const id = document.getElementById('deleteId').value.trim();
+      if (!id) {
+        alert('Please enter a Purchase ID');
+        return;
+      }
+      
+      if (!confirm('Are you sure you want to delete this purchase? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const deleteBtn = document.querySelector('button[onclick="deletePurchase()"]');
+        const originalBtnText = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+        deleteBtn.disabled = true;
+        
+        const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+        
+        if (res.ok) {
+          showToast('Purchase deleted successfully', 'success');
+          fetchAllPurchases();
+          document.getElementById('deleteId').value = '';
+        } else {
+          const errorData = await res.json();
+          showToast(errorData.message || 'Failed to delete purchase', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting purchase:', error);
+        showToast('Error deleting purchase', 'error');
+      } finally {
+        const deleteBtn = document.querySelector('button[onclick="deletePurchase()"]');
+        deleteBtn.innerHTML = originalBtnText;
+        deleteBtn.disabled = false;
+      }
+    }
+
+    // Confirm delete with modal
+    function confirmDelete(id) {
+      document.getElementById('deleteId').value = id;
+      
+      // Scroll to delete section
+      document.querySelector('[onclick="deletePurchase()"]').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+      
+      // Highlight the delete input
+      const deleteInput = document.getElementById('deleteId');
+      deleteInput.focus();
+      deleteInput.classList.add('ring-2', 'ring-red-500');
+      setTimeout(() => {
+        deleteInput.classList.remove('ring-2', 'ring-red-500');
+      }, 2000);
+    }
+
+    // Edit purchase - populate update form
+    function editPurchase(id) {
+      const purchase = allPurchasesData.find(item => (item._id || item.id) === id);
+      if (!purchase) return;
+      
+      const updateForm = document.getElementById('updateForm');
+      updateForm.querySelector('input[name="id"]').value = id;
+      
+      if (purchase.status) {
+        updateForm.querySelector('select[name="status"]').value = purchase.status;
+      }
+      
+      if (purchase.remainingBalance) {
+        updateForm.querySelector('input[name="remainingBalance"]').value = purchase.remainingBalance;
+      }
+      
+      // Scroll to update form
+      updateForm.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+
+    // Download Excel
+    function downloadExcel() {
+      if (allPurchasesData.length === 0) {
+        alert('No data to export');
+        return;
+      }
+      
+      // Create worksheet
+      const ws = XLSX.utils.json_to_sheet(allPurchasesData);
+      
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Purchases");
+      
+      // Export to file
+      XLSX.writeFile(wb, "purchases.xlsx");
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white flex items-center ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        'bg-blue-500'
+      }`;
+      
+      toast.innerHTML = `
+        <i class="fas ${
+          type === 'success' ? 'fa-check-circle' : 
+          type === 'error' ? 'fa-exclamation-circle' : 
+          'fa-info-circle'
+        } mr-2"></i>
+        <span>${message}</span>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+    }
+
+    // Pagination handlers
+    document.getElementById('prevPage').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPurchasesTable(allPurchasesData);
+      }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+      if (currentPage * itemsPerPage < allPurchasesData.length) {
+        currentPage++;
+        renderPurchasesTable(allPurchasesData);
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      fetchAllPurchases();
+    });
+  </script>
+</body>
+</html>

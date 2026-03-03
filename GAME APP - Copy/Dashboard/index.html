@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Razorpay Integration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #user-info {
+      background-color: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Display User Info -->
+  <div id="user-info">
+    <strong>Logged in User ID:</strong> <span id="displayUserId">Loading...</span>
+  </div>
+
+  <h2>Pay with Razorpay</h2>
+  <form id="payment-form">
+    <label for="amount">Enter Amount (INR): </label>
+    <input type="number" id="amount" name="amount" required />
+    <button type="button" onclick="payNow()">Pay Now</button>
+  </form>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    // Function to get logged in user info
+    function getLoggedInUserInfo() {
+      const userString = localStorage.getItem('user');
+      let userId = 'N/A';
+      let userName = 'Guest';
+      let userEmail = '';
+      let userInitial = 'G';
+
+      if (userString) {
+        try {
+          const userData = JSON.parse(userString);
+          userId = userData._id || userData.id || userData.userId || userData.userID || 'N/A';
+          userName = userData.username || userData.fullName || userData.name || 'Unknown User';
+          userEmail = userData.email || '';
+          userInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+        } catch (e) {
+          console.error('Error parsing user data from localStorage:', e);
+          userName = 'Error User';
+          userId = 'Error';
+          userInitial = 'E';
+        }
+      } else {
+        console.warn("User data not found in localStorage.");
+      }
+
+      return {
+        id: userId,
+        name: userName,
+        email: userEmail,
+        initial: userInitial
+      };
+    }
+
+    // Display User ID on page load
+    const userInfo = getLoggedInUserInfo();
+    document.getElementById('displayUserId').textContent = userInfo.id;
+
+    // Razorpay payment handler
+    async function payNow() {
+  const amountInput = document.getElementById("amount").value.trim();
+  const enteredAmount = parseFloat(amountInput);
+
+  if (!enteredAmount || enteredAmount <= 0) {
+    alert("Please enter a valid amount");
+    return;
+  }
+
+  const amount = Math.round(enteredAmount * 100); // Convert to paise
+  const userId = userInfo.id;
+
+  try {
+    // Step 1: Create order with correct amount
+    const orderResponse = await fetch("https://gameappbackend-i8zv.onrender.com/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ amount, userId })
+    });
+
+    const orderData = await orderResponse.json();
+    if (!orderData.id) throw new Error("Invalid order response");
+
+    // Step 2: Open Razorpay Checkout
+    const options = {
+      key: "rzp_test_4LPGV7rP4wBreT",
+      amount: orderData.amount,
+      currency: "INR",
+      name: "Acme Corp",
+      description: "Test Transaction",
+      order_id: orderData.id,
+      handler: async function (response) {
+        console.log("Payment successful:", response);
+
+        // Step 3: Send payment confirmation to backend
+        const successResponse = await fetch("https://gameappbackend-i8zv.onrender.com/api/payment-success", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id
+          })
+        });
+
+        const result = await successResponse.json();
+        console.log("Server Response:", result);
+        alert("Payment successful!");
+      },
+      prefill: {
+        name: userInfo.name,
+        email: userInfo.email,
+        contact: "9999999999"
+      },
+      theme: {
+        color: "#3399cc"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Something went wrong. See console for details.");
+  }
+}
+
+  </script>
+</body>
+</html>

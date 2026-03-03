@@ -1,0 +1,21 @@
+<script>
+    // Redirect to index.html if admin is not logged in
+    window.onload = function () {
+      const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+      if (isAdminLoggedIn !== 'true') {
+        window.location.href = '../index.html';
+      }
+    };
+  </script> 
+    // Logout function
+    function logoutAdmin() {
+      sessionStorage.removeItem('adminLoggedIn');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = '../index.html';
+    }
+  </script> 
+  above head add this in each admin file  
+  <a href="#" onclick="logoutAdmin()" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Logout</a>
+      </div>

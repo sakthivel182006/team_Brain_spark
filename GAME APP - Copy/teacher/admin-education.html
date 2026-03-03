@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard · reImagined</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: #f1f5f9;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* main grid layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* cards */
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
+      transition: box-shadow 0.2s ease;
+      border: 1px solid rgba(226, 232, 240, 0.6);
+    }
+
+    .card:hover {
+      box-shadow: 0 20px 30px -10px rgba(0, 20, 60, 0.15);
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 0.2rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h2 i {
+      font-size: 1.6rem;
+      color: #4361ee;
+    }
+
+    #teacherInfo {
+      background: white;
+      padding: 0.9rem 2rem;
+      border-radius: 60px;
+      display: inline-block;
+      margin: 0.5rem 0 1.5rem 0;
+      font-weight: 500;
+      color: #1e293b;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      border: 1px solid #e9eef3;
+    }
+
+    /* form elements */
+    input, textarea, select {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      margin: 0.5rem 0 1rem 0;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      transition: all 0.15s;
+      background: #fafdff;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #4361ee;
+      outline: none;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    button {
+      background: #4361ee;
+      color: white;
+      border: none;
+      padding: 0.9rem 1.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 14px -6px #4361ee70;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    button:hover {
+      background: #3651d4;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 20px -8px #3651d4c0;
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .module-item, .feedback-item {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #eef2f6;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .module-item {
+      border-left: 6px solid #4361ee;
+    }
+
+    .feedback-item.positive {
+      border-left: 6px solid #10b981;
+      background: #f0fdf9;
+    }
+    .feedback-item.negative {
+      border-left: 6px solid #ef4444;
+      background: #fef6f6;
+    }
+
+    .ai-result {
+      background: #f1f4fe;
+      border-radius: 18px;
+      padding: 1.4rem;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      border: 1px solid #d9e2ef;
+    }
+
+    /* loading modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      background: white;
+      max-width: 380px;
+      width: 90%;
+      border-radius: 36px;
+      padding: 2rem 2rem 1.8rem;
+      text-align: center;
+      box-shadow: 0 30px 50px -20px #0f172a;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .spinner {
+      border: 4px solid #e9eef3;
+      border-top: 4px solid #4361ee;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .modal-message {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #0f172a;
+      margin: 0.8rem 0 1.5rem;
+    }
+
+    .modal-ok-btn {
+      background: #1e293b;
+      box-shadow: none;
+      padding: 0.7rem 2.5rem;
+      font-size: 1.1rem;
+      border-radius: 40px;
+      margin-top: 0.5rem;
+      background: #4361ee;
+    }
+
+    .modal-ok-btn:hover {
+      background: #2f4ad4;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    hr {
+      border: 1px solid #eef2f6;
+      margin: 1.5rem 0;
+    }
+
+    .badge {
+      background: #f1f5f9;
+      border-radius: 60px;
+      padding: 0.3rem 1rem;
+      font-size: 0.85rem;
+      color: #334155;
+    }
+
+    .row-flex {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- loading popup modal -->
+<div id="loadingModal" class="modal-overlay">
+  <div class="modal-card">
+    <div id="modalSpinner" class="spinner"></div>
+    <div id="modalMessage" class="modal-message">Processing...</div>
+    <button id="modalOkBtn" class="modal-ok-btn hidden">✓ OK</button>
+  </div>
+</div>
+
+<h1>🧑‍🏫 Teacher Studio</h1>
+<div id="teacherInfo"></div>
+
+<!-- main responsive grid -->
+<div class="dashboard-grid">
+
+  <!-- LEFT: create course -->
+  <div class="card">
+    <h2><span>📘</span> Create new course</h2>
+    <input type="text" id="courseTitle" placeholder="Course title (e.g. Python Pro)">
+    <textarea id="courseDesc" placeholder="Comprehensive description..."></textarea>
+    <select id="courseLevel">
+      <option value="Beginner">Beginner</option>
+      <option value="Intermediate">Intermediate</option>
+      <option value="Advanced">Advanced</option>
+    </select>
+    <input type="number" id="coursePrice" placeholder="Price ($)">
+    <button onclick="createCourse()">✨ Create course</button>
+  </div>
+
+  <!-- RIGHT: create module & upload -->
+  <div class="card">
+    <h2><span>🎬</span> Add module & video</h2>
+    <select id="courseSelect"></select>
+    <input type="text" id="moduleTitle" placeholder="Module title (e.g. Variables)">
+    <input type="text" id="conceptTag" placeholder="Concept tag (e.g. loops)">
+    <input type="number" id="difficulty" placeholder="Difficulty (1-5)" min="1" max="5">
+    <input type="file" id="videoFile" accept="video/*">
+    <button onclick="createModule()">📤 Upload & create module</button>
+  </div>
+
+  <!-- BOTTOM: left side = my modules, right side = feedback -->
+  <div class="card full-width" style="padding-bottom: 2rem;">
+    <h2><span>📚</span> My created modules · AI analysis</h2>
+    <div id="teacherModules"></div>
+  </div>
+
+  <div class="card full-width">
+    <h2><span>💬</span> Student feedback</h2>
+    <div id="teacherFeedback"></div>
+  </div>
+</div>
+
+<script>
+// ---------- globals & session ----------
+const API_BASE = "http://localhost:5000/api/agent";
+const loginData = JSON.parse(localStorage.getItem('teacherLogin'));
+
+if (!loginData || loginData.expiry < Date.now()) {
+  alert("Session expired, please login again.");
+  window.location.href = "../index.html";
+}
+
+const teacherData = loginData.data;
+document.getElementById("teacherInfo").innerText = `Welcome ${teacherData.name} (${teacherData.email}) · instructor`;
+
+// ---------- modal controller ----------
+const modalOverlay = document.getElementById('loadingModal');
+const modalSpinner = document.getElementById('modalSpinner');
+const modalMessage = document.getElementById('modalMessage');
+const modalOkBtn = document.getElementById('modalOkBtn');
+
+function showModalLoading(text = 'Processing...') {
+  modalSpinner.classList.remove('hidden');
+  modalOkBtn.classList.add('hidden');
+  modalMessage.innerText = text;
+  modalOverlay.classList.add('active');
+}
+
+function showModalDone(text = 'Completed!', okCallback = null) {
+  modalSpinner.classList.add('hidden');
+  modalMessage.innerText = text;
+  modalOkBtn.classList.remove('hidden');
+
+  // remove previous listener and attach new one
+  const newOk = modalOkBtn.cloneNode(true);
+  modalOkBtn.replaceWith(newOk);
+  const freshOkBtn = document.getElementById('modalOkBtn');
+
+  freshOkBtn.addEventListener('click', function closeAndClean() {
+    modalOverlay.classList.remove('active');
+    if (okCallback) okCallback();
+  });
+}
+
+function hideModal() {
+  modalOverlay.classList.remove('active');
+}
+
+// ---------- load initial data ----------
+loadTeacherCourses();
+loadTeacherModules();
+loadTeacherFeedback();
+
+// ========== CREATE COURSE ==========
+async function createCourse() {
+  const title = document.getElementById("courseTitle").value.trim();
+  const desc = document.getElementById("courseDesc").value.trim();
+  const level = document.getElementById("courseLevel").value;
+  const price = document.getElementById("coursePrice").value.trim();
+
+  if (!title || !desc || !price) {
+    alert('Please fill all fields');
+    return;
+  }
+
+  showModalLoading('Creating course...');
+
+  try {
+    const res = await fetch(`${API_BASE}/courses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title, description: desc, level, price: Number(price), instructor: teacherData._id
+      })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const result = await res.json();
+    showModalDone(`✅ Course "${title}" created!`, () => {
+      // refresh lists
+      loadTeacherCourses();
+      loadTeacherModules();
+    });
+
+    // clear fields
+    document.getElementById("courseTitle").value = '';
+    document.getElementById("courseDesc").value = '';
+    document.getElementById("coursePrice").value = '';
+
+  } catch (err) {
+    console.error(err);
+    showModalDone('❌ Error creating course', null);
+  }
+}
+
+// ========== LOAD TEACHER COURSES (populate dropdown) ==========
+async function loadTeacherCourses() {
+  try {
+    const res = await fetch(`${API_BASE}/courses/teacher/${teacherData._id}`);
+    const courses = await res.json();
+    const select = document.getElementById("courseSelect");
+    select.innerHTML = "";
+    courses.forEach(course => {
+      const option = document.createElement("option");
+      option.value = course._id;
+      option.textContent = course.title;
+      select.appendChild(option);
+    });
+  } catch (e) {
+    console.warn('load courses failed', e);
+  }
+}
+
+// ========== CREATE MODULE ==========
+async function createModule() {
+  const file = document.getElementById("videoFile").files[0];
+  const courseId = document.getElementById("courseSelect").value;
+  const title = document.getElementById("moduleTitle").value.trim();
+  const concept = document.getElementById("conceptTag").value.trim();
+  const difficulty = document.getElementById("difficulty").value.trim();
+
+  if (!file || !courseId || !title || !concept || !difficulty) {
+    alert('Please fill all fields and select a video');
+    return;
+  }
+
+  showModalLoading('Uploading video & creating module...');
+
+  const formData = new FormData();
+  formData.append("courseId", courseId);
+  formData.append("title", title);
+  formData.append("conceptTag", concept);
+  formData.append("difficulty", difficulty);
+  formData.append("video", file);
+
+  try {
+    const res = await fetch(`${API_BASE}/modules`, {
+      method: "POST",
+      body: formData
+    });
+
+    if (!res.ok) throw new Error('upload failed');
+
+    showModalDone('🎥 Module uploaded!', () => {
+      loadTeacherModules();  // refresh modules
+    });
+
+    // clear fields
+    document.getElementById("moduleTitle").value = '';
+    document.getElementById("conceptTag").value = '';
+    document.getElementById("difficulty").value = '';
+    document.getElementById("videoFile").value = '';
+
+  } catch (err) {
+    console.error(err);
+    showModalDone('❌ Module creation error', null);
+  }
+}
+
+// ========== LOAD TEACHER MODULES ==========
+async function loadTeacherModules() {
+  const container = document.getElementById("teacherModules");
+  container.innerHTML = '<div class="badge" style="padding:1rem;">⏳ loading modules...</div>';
+
+  try {
+    const coursesRes = await fetch(`${API_BASE}/courses/teacher/${teacherData._id}`);
+    const courses = await coursesRes.json();
+
+    container.innerHTML = "";
+
+    for (const course of courses) {
+      const modRes = await fetch(`${API_BASE}/modules/course/${course._id}`);
+      const modules = await modRes.json();
+
+      modules.forEach(module => {
+        const div = document.createElement("div");
+        div.className = "module-item";
+
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+            <span><strong>${course.title}</strong>  ·  ${module.title}</span>
+            <button class="analyze-btn" data-courseid="${course._id}" data-coursename="${course.title}" data-moduleid="${module._id}" data-modulename="${module.title}" style="padding:0.5rem 1.4rem;">🤖 Analyze with AI</button>
+          </div>
+          <div id="ai-${module._id}" style="margin-top:0.8rem;"></div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // attach analyze event listeners after rendering
+    document.querySelectorAll('.analyze-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const courseId = btn.dataset.courseid;
+        const courseName = btn.dataset.coursename;
+        const moduleId = btn.dataset.moduleid;
+        const moduleName = btn.dataset.modulename;
+        analyzeModule(courseId, courseName, moduleId, moduleName);
+      });
+    });
+
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<div class="badge" style="color:#b91c1c;">Error loading modules</div>';
+  }
+}
+
+// ========== ANALYZE MODULE ==========
+async function analyzeModule(courseId, courseName, moduleId, moduleName) {
+  const resultBox = document.getElementById(`ai-${moduleId}`);
+  resultBox.innerHTML = '<div class="ai-result">⏳ requesting analysis...</div>';
+
+  showModalLoading('🔍 Gathering feedback & AI analysis...');
+
+  try {
+    // fetch feedback for this teacher (filter later)
+    const fbRes = await fetch(`${API_BASE}/feedback/teacher/${teacherData._id}`);
+    const feedbacks = await fbRes.json();
+
+    const moduleFeedback = feedbacks.filter(fb => fb.moduleId?._id === moduleId);
+
+    if (moduleFeedback.length === 0) {
+      resultBox.innerHTML = '<div class="ai-result">📭 No feedback available for this module.</div>';
+      showModalDone('No feedback to analyze', null);
+      return;
+    }
+
+    const feedbackText = moduleFeedback.map(f =>
+      `Rating: ${f.rating}/5\nComment: ${f.comment || '—'}`
+    ).join("\n\n");
+
+    // call AI analysis
+    const aiRes = await fetch(`${API_BASE}/llm/analyze-module`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ courseName, moduleName, feedbackText })
+    });
+
+    if (!aiRes.ok) throw new Error('AI service error');
+
+    const aiData = await aiRes.json();
+
+    resultBox.innerHTML = `
+      <div class="ai-result">
+        ${(aiData.aiResult || 'No summary').replace(/\n/g, "<br>")}
+        <br><br>
+        <button class="save-analysis-btn" data-courseid="${courseId}" data-moduleid="${moduleId}" data-health="${aiData.healthScore || 0}" data-airesult="${encodeURIComponent(aiData.aiResult || '')}">
+          💾 Save analysis to history
+        </button>
+      </div>
+    `;
+
+    showModalDone('✅ Analysis ready', () => {
+      // attach save listener after modal closes
+      const saveBtn = document.querySelector(`.save-analysis-btn[data-moduleid="${moduleId}"]`);
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          const health = saveBtn.dataset.health;
+          const aiText = decodeURIComponent(saveBtn.dataset.airesult);
+          saveAnalysis(courseId, moduleId, health, aiText);
+        });
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    resultBox.innerHTML = '<div class="ai-result" style="border-left-color:#ef4444;">❌ Analysis failed</div>';
+    showModalDone('⚠️ Error during analysis', null);
+  }
+}
+
+// ========== SAVE ANALYSIS ==========
+async function saveAnalysis(courseId, moduleId, healthScore, aiResult) {
+  showModalLoading('Saving analysis...');
+
+  try {
+    const res = await fetch(`${API_BASE}/llm/save-analysis`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        teacherId: teacherData._id,
+        courseId,
+        moduleId,
+        healthScore,
+        aiResult
+      })
+    });
+
+    if (res.ok) {
+      showModalDone('✅ Analysis saved permanently', null);
+    } else {
+      throw new Error('server refused');
+    }
+  } catch (error) {
+    console.error(error);
+    showModalDone('❌ Could not save analysis', null);
+  }
+}
+
+// ========== LOAD FEEDBACK ==========
+async function loadTeacherFeedback() {
+  const container = document.getElementById("teacherFeedback");
+  container.innerHTML = '<div class="badge">loading feedback...</div>';
+
+  try {
+    const res = await fetch(`${API_BASE}/feedback/teacher/${teacherData._id}`);
+    const feedbacks = await res.json();
+
+    container.innerHTML = "";
+
+    if (feedbacks.length === 0) {
+      container.innerHTML = '<div class="badge">✨ No student feedback yet</div>';
+      return;
+    }
+
+    feedbacks.forEach(fb => {
+      const div = document.createElement("div");
+      div.className = "feedback-item " + (fb.sentiment === 'positive' ? 'positive' : 'negative');
+
+      div.innerHTML = `
+        <strong>📘 ${fb.courseId?.title || 'unknown'}</strong> · <strong>🎯 ${fb.moduleId?.title || 'unknown'}</strong><br>
+        <span>👤 ${fb.userId?.username || 'student'}</span> · ⭐ ${fb.rating}/5 · <span class="badge">${fb.sentiment}</span><br>
+        <span style="color:#334155;">💬 ${fb.comment || '—'}</span>
+      `;
+
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.warn(err);
+    container.innerHTML = '<div class="badge" style="color:brown;">unable to load feedback</div>';
+  }
+}
+
+// attach modal ok default hide (just in case)
+modalOkBtn.addEventListener('click', () => {
+  modalOverlay.classList.remove('active');
+});
+
+</script>
+</body>
+</html>

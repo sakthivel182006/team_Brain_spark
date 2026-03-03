@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Dashboard</title>
+  <style>
+    body { font-family: Arial; background: #f4f6f9; padding: 30px; }
+    .box { 
+      background: white; 
+      padding: 20px; 
+      margin-bottom: 25px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+    }
+    input, textarea, select { 
+      width: 100%; 
+      padding: 8px; 
+      margin: 8px 0; 
+    }
+    button { 
+      padding: 8px 12px; 
+      background: #4361ee; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    button:hover { background: #3a0ca3; }
+    .module-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .feedback-item {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #4361ee;
+    }
+    .negative { border-left: 4px solid red; }
+    .positive { border-left: 4px solid green; }
+    .ai-result {
+      background: #eef;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Teacher Dashboard</h1>
+<h3 id="teacherInfo"></h3>
+
+<div class="box">
+  <h2>Create Course</h2>
+  <input type="text" id="courseTitle" placeholder="Course Title">
+  <textarea id="courseDesc" placeholder="Course Description"></textarea>
+  <select id="courseLevel">
+    <option value="Beginner">Beginner</option>
+    <option value="Intermediate">Intermediate</option>
+    <option value="Advanced">Advanced</option>
+  </select>
+  <input type="number" id="coursePrice" placeholder="Price">
+  <button onclick="createCourse()">Create Course</button>
+</div>
+
+<div class="box">
+  <h2>Create Module & Upload Video</h2>
+  <select id="courseSelect"></select>
+  <input type="text" id="moduleTitle" placeholder="Module Title">
+  <input type="text" id="conceptTag" placeholder="Concept Tag">
+  <input type="number" id="difficulty" placeholder="Difficulty (1-5)">
+  <input type="file" id="videoFile" accept="video/*">
+  <button onclick="createModule()">Upload & Create Module</button>
+</div>
+
+<div class="box">
+  <h2>My Created Modules</h2>
+  <div id="teacherModules"></div>
+</div>
+
+<div class="box">
+  <h2>Student Feedback</h2>
+  <div id="teacherFeedback"></div>
+</div>
+
+<script>
+
+const API_BASE = "http://localhost:5000/api/agent";
+const loginData = JSON.parse(localStorage.getItem('teacherLogin'));
+
+if (!loginData || loginData.expiry < Date.now()) {
+  alert("Session expired");
+  window.location.href = "../index.html";
+}
+
+const teacherData = loginData.data;
+document.getElementById("teacherInfo").innerText =
+  `Welcome ${teacherData.name} (${teacherData.email})`;
+
+loadTeacherCourses();
+loadTeacherModules();
+loadTeacherFeedback();
+
+// ================= CREATE COURSE =================
+async function createCourse() {
+
+  const data = {
+    title: document.getElementById("courseTitle").value,
+    description: document.getElementById("courseDesc").value,
+    level: document.getElementById("courseLevel").value,
+    price: document.getElementById("coursePrice").value,
+    instructor: teacherData._id
+  };
+
+  await fetch(`${API_BASE}/courses`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  loadTeacherCourses();
+  loadTeacherModules();
+}
+
+// ================= LOAD COURSES =================
+async function loadTeacherCourses() {
+
+  const res = await fetch(`${API_BASE}/courses/teacher/${teacherData._id}`);
+  const courses = await res.json();
+
+  const select = document.getElementById("courseSelect");
+  select.innerHTML = "";
+
+  courses.forEach(course => {
+    const option = document.createElement("option");
+    option.value = course._id;
+    option.textContent = course.title;
+    select.appendChild(option);
+  });
+}
+
+// ================= CREATE MODULE =================
+async function createModule() {
+
+  const file = document.getElementById("videoFile").files[0];
+  if (!file) return alert("Select video");
+
+  const formData = new FormData();
+  formData.append("courseId", document.getElementById("courseSelect").value);
+  formData.append("title", document.getElementById("moduleTitle").value);
+  formData.append("conceptTag", document.getElementById("conceptTag").value);
+  formData.append("difficulty", document.getElementById("difficulty").value);
+  formData.append("video", file);
+
+  await fetch(`${API_BASE}/modules`, {
+    method: "POST",
+    body: formData
+  });
+
+  loadTeacherModules();
+}
+
+// ================= LOAD MODULES =================
+async function loadTeacherModules() {
+
+  const res = await fetch(`${API_BASE}/courses/teacher/${teacherData._id}`);
+  const courses = await res.json();
+
+  const container = document.getElementById("teacherModules");
+  container.innerHTML = "";
+
+  for (const course of courses) {
+
+    const modRes = await fetch(`${API_BASE}/modules/course/${course._id}`);
+    const modules = await modRes.json();
+
+    modules.forEach(module => {
+
+      const div = document.createElement("div");
+      div.className = "module-item";
+
+      div.innerHTML = `
+        <strong>Course:</strong> ${course.title}<br>
+        <strong>Module:</strong> ${module.title}<br>
+        <button onclick="analyzeModule('${course._id}','${course.title}','${module._id}','${module.title}')">
+          🤖 Analyze with AI
+        </button>
+        <div id="ai-${module._id}"></div>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+}
+
+// ================= ANALYZE MODULE =================
+async function analyzeModule(courseId, courseName, moduleId, moduleName) {
+
+  const resultBox = document.getElementById(`ai-${moduleId}`);
+  resultBox.innerHTML = "Analyzing...";
+
+  const fbRes = await fetch(`${API_BASE}/feedback/teacher/${teacherData._id}`);
+  const feedbacks = await fbRes.json();
+
+  const moduleFeedback = feedbacks.filter(fb => fb.moduleId._id === moduleId);
+
+  if (moduleFeedback.length === 0) {
+    resultBox.innerHTML = "No feedback available.";
+    return;
+  }
+
+  const feedbackText = moduleFeedback.map(f =>
+    `Rating: ${f.rating}/5\nComment: ${f.comment}`
+  ).join("\n\n");
+
+  const aiRes = await fetch(`${API_BASE}/llm/analyze-module`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      courseName,
+      moduleName,
+      feedbackText
+    })
+  });
+
+  const aiData = await aiRes.json();
+
+  resultBox.innerHTML = `
+    <div class="ai-result">
+      ${aiData.aiResult.replace(/\n/g, "<br>")}
+      <br><br>
+      <button id="save-${moduleId}">
+        💾 Save Analysis
+      </button>
+    </div>
+  `;
+
+  document.getElementById(`save-${moduleId}`)
+    .addEventListener("click", () => {
+      saveAnalysis(
+        courseId,
+        moduleId,
+        aiData.healthScore,
+        aiData.aiResult
+      );
+  });
+}
+
+// ================= SAVE ANALYSIS =================
+async function saveAnalysis(courseId, moduleId, healthScore, aiResult) {
+
+  try {
+
+    const res = await fetch(`${API_BASE}/llm/save-analysis`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        teacherId: teacherData._id,
+        courseId,
+        moduleId,
+        healthScore,
+        aiResult
+      })
+    });
+
+    if (res.ok) {
+      alert("Analysis saved successfully ✅");
+    } else {
+      alert("Failed to save analysis");
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("Server error while saving analysis");
+  }
+}
+
+// ================= LOAD FEEDBACK =================
+async function loadTeacherFeedback() {
+
+  const res = await fetch(`${API_BASE}/feedback/teacher/${teacherData._id}`);
+  const feedbacks = await res.json();
+
+  const container = document.getElementById("teacherFeedback");
+  container.innerHTML = "";
+
+  feedbacks.forEach(fb => {
+
+    const div = document.createElement("div");
+    div.className = "feedback-item " + fb.sentiment;
+
+    div.innerHTML = `
+      <strong>Course:</strong> ${fb.courseId.title}<br>
+      <strong>Module:</strong> ${fb.moduleId.title}<br>
+      <strong>User:</strong> ${fb.userId.username}<br>
+      <strong>Rating:</strong> ${fb.rating}/5<br>
+      <strong>Sentiment:</strong> ${fb.sentiment}<br>
+      <strong>Comment:</strong> ${fb.comment}
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+</script>
+</body>
+</html>

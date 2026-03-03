@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Extension presence (heuristic)</title>
+  <style>
+    body { font-family: system-ui, Arial; padding: 24px; }
+    #result { font-weight: 600; padding: 12px; border-radius: 8px; display: inline-block; }
+    .ok { background:#e6ffed; color:#006644; border:1px solid #b7f0c8; }
+    .warn { background:#fff4e6; color:#6a3b00; border:1px solid #ffdfa6; }
+  </style>
+</head>
+<body>
+  <h2>Extension check (heuristic)</h2>
+  <div id="result" class="warn">Checking…</div>
+
+  <script>
+    // ---------- Heuristic detectors ----------
+    function detectAdBlock() {
+      // Create a bait element that adblockers typically hide
+      const bait = document.createElement('div');
+      bait.className = 'adsbox ad-bait';
+      // put styles that many adblock filters target
+      bait.style.position = 'absolute';
+      bait.style.left = '-999px';
+      bait.style.height = '10px';
+      bait.style.width = '10px';
+      document.body.appendChild(bait);
+
+      // Check computed style and offset to guess if it's hidden/removed
+      const computed = window.getComputedStyle ? getComputedStyle(bait) : {};
+      const hidden = (
+        computed && (computed.display === 'none' || computed.visibility === 'hidden' || Number(bait.offsetHeight) === 0)
+      ) || bait.offsetParent === null;
+
+      document.body.removeChild(bait);
+      return !!hidden;
+    }
+
+    function detectDevtoolsHooks() {
+      // Many developer extensions inject global hooks we can detect:
+      const hooks = {
+        react_devtools: !!window.__REACT_DEVTOOLS_GLOBAL_HOOK__,
+        redux_devtools: !!(window.__REDUX_DEVTOOLS_EXTENSION__ || window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__),
+        vue_devtools: !!window.__VUE_DEVTOOLS_GLOBAL_HOOK__,
+        ng_devtools: !!window.ng || !!window.__NG_DEVTOOLS_GLOBAL_HOOK__,
+        // add more known hooks if you want
+      };
+      // return list of keys that are true
+      return Object.keys(hooks).filter(k => hooks[k]);
+    }
+
+    function detectInjectedDOMPatterns() {
+      // Some extensions add identifiable DOM nodes or iframes.
+      // This is a lightweight check — adjust for specific extensions you want to detect.
+      const patterns = [];
+      if (document.querySelector('iframe[src*="extension"], iframe[src^="chrome-extension://"]')) {
+        patterns.push('iframe-from-extension');
+      }
+      // example: ugly but sometimes useful: many privacy extensions add 'data-ad' attributes or classes
+      if (document.querySelector('[data-adblock]')) patterns.push('data-adblock-attr');
+      return patterns;
+    }
+
+    // ---------- Run checks and show result ----------
+    (function runChecks() {
+      const resultEl = document.getElementById('result');
+      const found = [];
+      if (detectAdBlock()) found.push('adblock (bait hidden)');
+      const hooks = detectDevtoolsHooks();
+      hooks.forEach(h => found.push(h));
+      const doms = detectInjectedDOMPatterns();
+      doms.forEach(d => found.push(d));
+
+      if (found.length) {
+        resultEl.className = 'ok';
+        resultEl.textContent = 'Extension(s) detected (heuristic): ' + found.join(', ');
+      } else {
+        resultEl.className = 'warn';
+        resultEl.textContent = 'No extension detected (heuristic).';
+      }
+    })();
+  </script>
+</body>
+</html>

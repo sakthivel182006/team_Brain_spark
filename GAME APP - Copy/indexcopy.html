@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn From Sakthi | E-Learning Platform & MCQ Tournament</title>
+    <meta name="description" content="Learn From Sakthi - Explore coding tutorials, Java projects, Spring Boot, Data Structures & Algorithms, Full Stack Development, React, Node.js, HTML, CSS, JavaScript tutorials, and source code examples.">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   
+   <style>
+    /* Admin Block Message */
+.admin-block {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10000;
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+}
+
+.admin-block i {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: #e74c3c;
+}
+   </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="indexlogin.html" class="logo-link">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Learn From Sakthi</span>
+                    </a>
+                </div>
+                <div class="nav-menu" id="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
+                        <li class="nav-item"><a href="#courses" class="nav-link">Courses</a></li>
+                        <li class="nav-item"><a href="#challenges" class="nav-link">MCQ Challenges</a></li>
+                        <li class="nav-item"><a href="#rankings" class="nav-link">Rankings</a></li>
+                        <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                        <li class="nav-item"><a href="indexlogin.html" class="nav-link nav-btn login-btn">Student-Login</a></li>
+                        <li class="nav-item"><a href="indexcollege.html" class="nav-link nav-btn register-btn">Institute-Login</a></li>
+                    </ul>
+                </div>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Elevate Your Coding Skills With <span>Learn From Sakthi</span></h1>
+                <p class="hero-description">Join our interactive e-learning platform featuring coding tutorials, MCQ tournaments, and real-world projects. Master Java, Spring Boot, DSA, Full Stack Development and more!</p>
+                <div class="hero-buttons">
+                    <a href="indexlogin.html" class="btn btn-primary">Get Started</a>
+                    <a href="#courses" class="btn btn-secondary">Explore Courses</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-text">Active Learners</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">10+</span>
+                        <span class="stat-text">Courses</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-text">MCQ Challenges</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://cdn-icons-png.flaticon.com/512/3771/3771533.png" alt="Coding Illustration">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Learn From Sakthi?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3 class="feature-title">Hands-on Coding</h3>
+                    <p class="feature-description">Learn by doing with real-world projects and coding exercises.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="feature-title">MCQ Tournaments</h3>
+                    <p class="feature-description">Compete in coding challenges and climb the leaderboard.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="feature-title">Project-Based Learning</h3>
+                    <p class="feature-description">Build portfolio-worthy projects with step-by-step guidance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Community Support</h3>
+                    <p class="feature-description">Join a vibrant community of learners and mentors.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="courses" id="courses">
+        <div class="container">
+            <h2 class="section-title">Popular Courses</h2>
+            <div class="courses-grid">
+                <div class="course-card">
+                    <div class="course-image">
+                        <img src="https://cdn-icons-png.flaticon.com/512/226/226777.png" alt="Java Course">
+                    </div>
+                    <div class="course-content">
+                        <h3 class="course-title">Java Programming</h3>
+                        <p class="course-description">Master Java from basics to advanced concepts with hands-on projects.</p>
+                        <div class="course-info">
+                            <span class="course-duration"><i class="far fa-clock"></i> 8 Weeks</span>
+                            <span class="course-level">Beginner</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968381.png" alt="Spring Boot Course">
+                    </div>
+                    <div class="course-content">
+                        <h3 class="course-title">Spring Boot</h3>
+                        <p class="course-description">Build robust backend applications with Spring Boot framework.</p>
+                        <div class="course-info">
+                            <span class="course-duration"><i class="far fa-clock"></i> 6 Weeks</span>
+                            <span class="course-level">Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image">
+                        <img src="https://cdn-icons-png.flaticon.com/512/6132/6132222.png" alt="DSA Course">
+                    </div>
+                    <div class="course-content">
+                        <h3 class="course-title">Data Structures & Algorithms</h3>
+                        <p class="course-description">Master DSA concepts to ace technical interviews.</p>
+                        <div class="course-info">
+                            <span class="course-duration"><i class="far fa-clock"></i> 10 Weeks</span>
+                            <span class="course-level">All Levels</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="course-card">
+                    <div class="course-image">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2282/2282188.png" alt="Full Stack Course">
+                    </div>
+                    <div class="course-content">
+                        <h3 class="course-title">Full Stack Development</h3>
+                        <p class="course-description">Learn frontend and backend technologies to become a full-stack developer.</p>
+                        <div class="course-info">
+                            <span class="course-duration"><i class="far fa-clock"></i> 12 Weeks</span>
+                            <span class="course-level">Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Challenges Section -->
+    <section class="challenges" id="challenges">
+        <div class="container">
+            <h2 class="section-title">MCQ Challenges & Tournaments</h2>
+            <div class="challenges-grid">
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Java Fundamentals</h3>
+                        <span class="challenge-difficulty easy">Easy</span>
+                    </div>
+                    <p class="challenge-description">Test your Java basics with this beginner-friendly challenge.</p>
+                    <div class="challenge-stats">
+                        <span><i class="fas fa-users"></i> 1500+ Participants</span>
+                        <span><i class="far fa-question-circle"></i> 20 Questions</span>
+                    </div>
+                    <a href="indexlogin.html" class="btn btn-outline">Join Challenge</a>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Spring Boot Advanced</h3>
+                        <span class="challenge-difficulty medium">Medium</span>
+                    </div>
+                    <p class="challenge-description">Advanced concepts in Spring Boot framework and microservices.</p>
+                    <div class="challenge-stats">
+                        <span><i class="fas fa-users"></i> 800+ Participants</span>
+                        <span><i class="far fa-question-circle"></i> 25 Questions</span>
+                    </div>
+                    <a href="indexlogin.html" class="btn btn-outline">Join Challenge</a>
+                </div>
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">DSA Tournament</h3>
+                        <span class="challenge-difficulty hard">Hard</span>
+                    </div>
+                    <p class="challenge-description">Compete in this DSA tournament and climb the leaderboard.</p>
+                    <div class="challenge-stats">
+                        <span><i class="fas fa-users"></i> 2000+ Participants</span>
+                        <span><i class="far fa-question-circle"></i> 30 Questions</span>
+                    </div>
+                    <a href="indexlogin.html" class="btn btn-outline">Join Challenge</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rankings Section -->
+    <section class="rankings" id="rankings">
+        <div class="container">
+            <h2 class="section-title">Top Performers</h2>
+            <div class="rankings-table">
+                <div class="ranking-header">
+                    <span>Rank</span>
+                    <span>Student</span>
+                    <span>Points</span>
+                    <span>Badges</span>
+                </div>
+                <div class="ranking-row">
+                    <span class="rank-number">1</span>
+                    <span class="student-name">Alex Johnson</span>
+                    <span class="student-points">2450</span>
+                    <span class="student-badges">
+                        <i class="fas fa-medal gold"></i>
+                        <i class="fas fa-star"></i>
+                    </span>
+                </div>
+                <div class="ranking-row">
+                    <span class="rank-number">2</span>
+                    <span class="student-name">Maria Garcia</span>
+                    <span class="student-points">2310</span>
+                    <span class="student-badges">
+                        <i class="fas fa-medal silver"></i>
+                        <i class="fas fa-star"></i>
+                    </span>
+                </div>
+                <div class="ranking-row">
+                    <span class="rank-number">3</span>
+                    <span class="student-name">David Smith</span>
+                    <span class="student-points">2180</span>
+                    <span class="student-badges">
+                        <i class="fas fa-medal bronze"></i>
+                        <i class="fas fa-star"></i>
+                    </span>
+                </div>
+                <div class="ranking-row">
+                    <span class="rank-number">4</span>
+                    <span class="student-name">Sarah Williams</span>
+                    <span class="student-points">2050</span>
+                    <span class="student-badges">
+                        <i class="fas fa-star"></i>
+                    </span>
+                </div>
+                <div class="ranking-row">
+                    <span class="rank-number">5</span>
+                    <span class="student-name">James Brown</span>
+                    <span class="student-points">1920</span>
+                    <span class="student-badges">
+                        <i class="fas fa-star"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="rankings-cta">
+                <p>Join now and see your name on the leaderboard!</p>
+                <a href="indexlogin.html" class="btn btn-primary">Start Learning</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 class="footer-title">Learn From Sakthi</h3>
+                    <p class="footer-description">An interactive e-learning platform to enhance your coding skills through tutorials, projects, and MCQ tournaments.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#courses">Courses</a></li>
+                        <li><a href="#challenges">MCQ Challenges</a></li>
+                        <li><a href="#rankings">Rankings</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Contact Us</h3>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-envelope"></i> sakthivelv202222@gmail.com</li>
+                        <li><i class="fas fa-phone"></i> +91 9361586944</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Coimbatore, Tamil Nadu</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Learn From Sakthi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+<!-- Admin Block Message -->
+<div class="admin-block" id="adminBlock">
+    <i class="fas fa-ban"></i>
+    <h2>Access Blocked by Admin</h2>
+    <p>Developer tools have been disabled on this page.</p>
+</div>
+    <script src="script.js"></script>
+    <script>
+// ======================
+// Redirect user based on role
+// ======================
+
+// ======================
+// SECURITY: BLOCK DEVELOPER TOOLS
+// ======================
+
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    showAdminBlock();
+    return false;
+});
+
+document.addEventListener('keydown', function(e) {
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
+    if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'C')
+    ) {
+        e.preventDefault();
+        showAdminBlock();
+        return false;
+    }
+});
+
+// Function to show admin block message
+function showAdminBlock() {
+    const adminBlock = document.getElementById('adminBlock');
+    adminBlock.style.display = 'flex';
+    setTimeout(() => {
+        adminBlock.style.display = 'none';
+    }, 3000);
+}
+
+function redirectBasedOnRole(role) {
+    switch(role) {
+        case 'admin':
+            window.location.href = 'admin/adminhomepage.html';
+            break;
+        case 'teacher':
+            window.location.href = 'teacher/teacherhomepage.html';
+            break;
+        case 'collegemanagement':
+            window.location.href = 'college/collegemanagement.html';
+            break;
+        case 'user':
+            window.location.href = 'Home.html';
+            break;
+        default:
+            console.warn('Unknown role: ', role);
+            break;
+    }
+}
+
+// ======================
+// Auto-check login on page load
+// ======================
+function checkLoggedInAndRedirect() {
+    localStorage.clear();
+}
+
+// Run immediately on page load
+checkLoggedInAndRedirect();
+</script>
+
+</body>
+</html>

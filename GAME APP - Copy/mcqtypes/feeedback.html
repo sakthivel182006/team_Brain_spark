@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Analysis Dashboard</title>
+  <style>
+    body { font-family: Arial; background: #f4f6f9; padding: 30px; }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .score-bar {
+      height: 20px;
+      border-radius: 10px;
+      margin-top: 8px;
+      background: #ddd;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      text-align: center;
+      color: white;
+      font-size: 12px;
+      line-height: 20px;
+    }
+
+    .good { background: green; }
+    .medium { background: orange; }
+    .bad { background: red; }
+
+    h1 { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>📊 AI Feedback Analysis Dashboard</h1>
+<h3 id="teacherName"></h3>
+
+<div id="analysisContainer"></div>
+
+<script>
+
+const API_BASE = "http://localhost:5000/api/agent";
+const loginData = JSON.parse(localStorage.getItem("teacherLogin"));
+
+if (!loginData || loginData.expiry < Date.now()) {
+  alert("Session expired");
+  window.location.href = "../index.html";
+}
+
+const teacherData = loginData.data;
+document.getElementById("teacherName").innerText =
+  `Teacher: ${teacherData.name}`;
+
+loadAIAnalyses();
+
+async function loadAIAnalyses() {
+
+  const res = await fetch(
+    `${API_BASE}/llm/analysis/teacher/${teacherData._id}`
+  );
+
+  const data = await res.json();
+
+  const container = document.getElementById("analysisContainer");
+  container.innerHTML = "";
+
+  if (!data.success || data.analyses.length === 0) {
+    container.innerHTML = "<p>No AI analyses available.</p>";
+    return;
+  }
+
+  data.analyses.forEach(item => {
+
+    const score = item.healthScore || 0;
+
+    let scoreClass = "bad";
+    if (score >= 75) scoreClass = "good";
+    else if (score >= 50) scoreClass = "medium";
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <strong>Course:</strong> ${item.courseId?.title || "N/A"}<br>
+      <strong>Module:</strong> ${item.moduleId?.title || "N/A"}<br>
+      <strong>Health Score:</strong> ${score}/100
+
+      <div class="score-bar">
+        <div class="score-fill ${scoreClass}" style="width:${score}%">
+          ${score}%
+        </div>
+      </div>
+
+      <br>
+      <div>
+        ${item.aiResult.replace(/\n/g, "<br>")}
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+</script>
+
+</body>
+</html>
